@@ -4,7 +4,7 @@ package main
 
 import (
 	"fmt"
-	"bitbucket.com/jdnewman/argon"
+	"bitbucket.org/jdnewman/argon"
 )
 
 func main() {
