@@ -1,0 +1,27 @@
+
+Material Class:
+	Holds/Creates VAO
+	Holds/Creates VBO
+	Holds/Loads Shaders/Program
+	Binds/Unbinds VAO/VBO/Shader
+	Sends data to VBO
+	Draws Arrays
+
+Primitive Classes:
+	Has/Is a material?
+	Sets VertexAttrbi Pointers
+	Enables VertexAttrib Arrays
+	Sets up Uniforms?
+	Sets up Texture Uniforms?
+	
+	Handles Primitive specific data type
+	Draws (including batch vs singles?)
+
+Emphasize Go-awesomeness
+	Drawable - Anything with the draw function
+	Loadable? - Has a Load(Filename)
+
+
+-Primitive itself is just the struct
+--Then we define the init, create, draw methods
+
