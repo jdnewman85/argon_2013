@@ -1,6 +1,5 @@
-// Material
 
-package argon
+package shader
 
 import(
 	"fmt"
@@ -10,24 +9,16 @@ import(
 	"os"
 )
 
+type Shader struct {
+	Program gl.Uint
+}
+
 func init() {
-	log.Println("material.go here")
+	log.Println("shader.go here")
 }
 
-type Material struct {
-	//TODO May make vao associated with the data itself?
-	vao, vbo, shaderProgram gl.Uint
-}
-
-func (this *Material) LoadShaders(fileName string) error {
-	//VAO
-	gl.GenVertexArrays(1, &this.vao)
-
-	//VBO
-	gl.GenBuffers(1, &this.vbo)
-
-	//Shaders
-	this.shaderProgram = gl.CreateProgram()
+func (this *Shader) LoadFromFile(fileName string) error {
+	this.Program = gl.CreateProgram()
 
 	//TODO How about we pass an array of filenames and loop through and load?
 	//Vert
@@ -40,7 +31,7 @@ func (this *Material) LoadShaders(fileName string) error {
 		gl.ShaderSource(shader, 1, &glSource, nil)
 		gl.CompileShader(shader)
 		//Check compiled status TODO
-		gl.AttachShader(this.shaderProgram, shader)
+		gl.AttachShader(this.Program, shader)
 	}
 
 	//Frag
@@ -53,7 +44,7 @@ func (this *Material) LoadShaders(fileName string) error {
 		gl.ShaderSource(shader, 1, &glSource, nil)
 		gl.CompileShader(shader)
 		//Check compiled status TODO
-		gl.AttachShader(this.shaderProgram, shader)
+		gl.AttachShader(this.Program, shader)
 	}
 
 	//Geom
@@ -66,35 +57,14 @@ func (this *Material) LoadShaders(fileName string) error {
 		gl.ShaderSource(shader, 1, &glSource, nil)
 		gl.CompileShader(shader)
 		//Check compiled status TODO
-		gl.AttachShader(this.shaderProgram, shader)
+		gl.AttachShader(this.Program, shader)
 	}
 
-	gl.LinkProgram(this.shaderProgram)
+	gl.LinkProgram(this.Program)
 	return nil
 }
 
-func (this *Material) Bind() {
-	gl.BindVertexArray(this.vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, this.vbo)
-	gl.UseProgram(this.shaderProgram)
-}
-
-func (this *Material) UnBind() {
-	//TODO Kosher?
-	gl.UseProgram(0)
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
-
-}
-
-func (this *Material) Draw( numEntities, sizeEntities int, entities interface{}) {
-	//TODO REM Avoid unnessessary rebinds
-	this.Bind()
-
-	//TODO Finish
-	gl.BufferData(gl.ARRAY_BUFFER, gl.Sizeiptr(sizeEntities * numEntities), entities.(gl.Pointer), gl.DYNAMIC_DRAW)
-
-	//TODO only supports point materials, nees to be set in material
-	gl.DrawArrays(gl.POINTS, 0, gl.Sizei(numEntities))
+func (this *Shader) Use() {
+	gl.UseProgram(this.Program)
 }
 
