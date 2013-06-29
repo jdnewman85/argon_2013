@@ -3,7 +3,7 @@ package renderer
 
 import(
 	"log"
-	"unsafe"
+	//"unsafe"
 
 	gl "github.com/chsc/gogl/gl33"
 
@@ -23,16 +23,26 @@ type Attribute struct {
 	Offset gl.Pointer
 }
 
+type DrawData struct {
+	ArrayData gl.Pointer
+	ArraySize gl.Sizeiptr
+	ElementNum gl.Sizei
+}
+
+//TODO Rename? (Would like this for the Draw() interface)
+type Drawable interface {
+	//TODO Include getting of Renderer, default shader?
+	DrawData() DrawData
+}
+
 type Renderer struct {
 	vao, vbo gl.Uint
-	dataSize gl.Sizeiptr
 	attributes []Attribute
 }
 
-func Create(dataSize uintptr, attributes []Attribute) *Renderer {
+func Create(attributes []Attribute) *Renderer {
 	temp := new(Renderer)
 
-	temp.dataSize = gl.Sizeiptr(dataSize)
 	temp.attributes = attributes
 
 	//Setup VAO and VBO
@@ -56,7 +66,11 @@ func Create(dataSize uintptr, attributes []Attribute) *Renderer {
 	return temp
 }
 
-func (this *Renderer) Draw(data unsafe.Pointer, aShader *shader.Shader) {
+func (this *Renderer) Draw(elements Drawable, aShader *shader.Shader) {
+
+	//Get Drawable data
+	drawData := elements.DrawData()
+
 	//TODO Avoid unnessessary rebinds
 	//Binds
 	aShader.Use()
@@ -64,10 +78,10 @@ func (this *Renderer) Draw(data unsafe.Pointer, aShader *shader.Shader) {
 	gl.BindBuffer(gl.ARRAY_BUFFER, this.vbo)
 
 	//Update Buffer
-	gl.BufferData(gl.ARRAY_BUFFER, this.dataSize, gl.Pointer(data), gl.DYNAMIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, drawData.ArraySize, drawData.ArrayData, gl.DYNAMIC_DRAW)
 
 	//Draw
-	gl.DrawArrays(gl.POINTS, 0, gl.Sizei(1))
+	gl.DrawArrays(gl.POINTS, 0, drawData.ElementNum)
 
 	//TODO Defer?
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
@@ -75,3 +89,4 @@ func (this *Renderer) Draw(data unsafe.Pointer, aShader *shader.Shader) {
 	gl.UseProgram(0)
 }
 
+//TODO Assert on dataSizes and such not matching multiples of stored correct value?

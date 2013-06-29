@@ -27,6 +27,7 @@ type Circle struct {
 	Red, Green, Blue, Alpha gl.Float
 }
 
+//TODO Get rid of gl dependancies?
 func Init() {
 	//Renderer
 	//-Attributes
@@ -41,7 +42,7 @@ func Init() {
 		renderer.Attribute{2, 4, gl.FLOAT, gl.FALSE, sizeOfCircle, redOffset},
 	}
 	//-Create
-	gRenderer = renderer.Create(unsafe.Sizeof(defaultCircle), tempAttributes)
+	gRenderer = renderer.Create(tempAttributes)
 
 	//Shader
 	gShader = shader.Create()
@@ -68,7 +69,12 @@ func Create() *Circle {
 }
 
 func (this *Circle) Draw() {
-	gRenderer.Draw(unsafe.Pointer(this), gShader)
+	gRenderer.Draw(this, gShader)
+}
+
+func (this *Circle) DrawData() renderer.DrawData {
+	//TODO Get rid of gl dependancies?
+	return renderer.DrawData{gl.Pointer(this), gl.Sizeiptr(unsafe.Sizeof(*this)), 1}
 }
 
 //TODO REM
