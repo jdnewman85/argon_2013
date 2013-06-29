@@ -52,7 +52,7 @@ func Init() {
 	gShader.Use()
 	//-Uniforms //TODO Remove/Move/Change
 	inOrthoLoc := gl.GetUniformLocation(gShader.Program, gl.GLString("inOrtho"))
-	orthoVec := makeOrtho(1280, 720) //TODO FINISH Replace with screen width/height
+	orthoVec := shader.MakeOrtho(1280, 720) //TODO FINISH Replace with screen width/height
 	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoVec[0])
 
 	//--Textures //TODO Remove/Move/Change
@@ -77,11 +77,3 @@ func (this *Circle) DrawData() renderer.DrawData {
 	return renderer.DrawData{gl.Pointer(this), gl.Sizeiptr(unsafe.Sizeof(defaultCircle)), 1}
 }
 
-//TODO REM
-func makeOrtho(width, height int) [16]gl.Float {
-	return [16]gl.Float {
-		2.0 / gl.Float(width), 0.0, 0.0, 0.0,
-		0.0, 2.0 / gl.Float(height), 0.0, 0.0,
-		0.0, 0.0, -1.0, 0.0,
-		-1.0, -1.0, 0.0, 1.0}
-}
