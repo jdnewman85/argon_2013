@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+
 	"bitbucket.org/jdnewman/argon"
 	"bitbucket.org/jdnewman/argon/circle"
 )

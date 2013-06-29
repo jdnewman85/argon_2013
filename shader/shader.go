@@ -3,10 +3,11 @@ package shader
 
 import(
 	"fmt"
-	gl "github.com/chsc/gogl/gl33"
 	"io/ioutil"
 	"log"
 	"os"
+
+	gl "github.com/chsc/gogl/gl33"
 )
 
 type Shader struct {
@@ -15,6 +16,14 @@ type Shader struct {
 
 func init() {
 	log.Println("shader.go here")
+}
+
+func Create() *Shader {
+	temp := new(Shader)
+
+	temp.Program = gl.CreateProgram()
+
+	return temp
 }
 
 func (this *Shader) LoadFromFile(fileName string) error {
@@ -60,8 +69,11 @@ func (this *Shader) LoadFromFile(fileName string) error {
 		gl.AttachShader(this.Program, shader)
 	}
 
-	gl.LinkProgram(this.Program)
 	return nil
+}
+
+func (this *Shader) Link() {
+	gl.LinkProgram(this.Program)
 }
 
 func (this *Shader) Use() {

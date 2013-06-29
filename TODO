@@ -7,3 +7,37 @@ Fonts?
 Sound?
 Networking?
 
+May change 'defaultCircle' to just be what is returned by the Create function?
+	Pro: Less globals
+	Con: Creates temporary variables when using Sizeof or Offsetof
+		Though this may be infrequent
+Need to move the vao, vbo, and gShader variables out of global scope
+	Need some sort of CircleRenderer Object?
+		Handles setting up the render data
+		Takes in the Circle structs for drawing
+		Does actual rendering given structs and shader
+			Loads a default shader (source in source?)
+May continue work on shader class
+	Change LoadFromFiles to accept multiple files, or possibly wildcharacters and load/compile/attatch all
+	Remove the gl.CreateProgram from the LoadFromFiles?
+	Add a function that creates/loads all shaders/compiles and links all in one function?
+		Possibly this is the LoadFromFiles, and a similar LoadFromFile only does one?
+	Determine tpe of shader based on file extension?
+Move the Uniform stuff into the shader class
+Drawables/Renderables interface could be defined by having methods to:
+	-GetSize
+	-GetOffset
+	-GetAttribs
+		And corresponding attrib data
+	This would allow a few methods defined on the interface to handle the setup and such, without requiring the extra type
+		Except, that I still need to store the vbo, vao, and shaderprogram...
+	
+
+-----------OK!
+Seperate my 'Renderer' class out
+	Handles vbo, vao, drawing
+
+Circle has default renderer, and shader that it will load
+	Default attributes and such are in the setup
+	Default shader sources will also load
+

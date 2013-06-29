@@ -3,22 +3,23 @@
 package circle
 
 import (
-	gl "github.com/chsc/gogl/gl33"
 	"log"
-	"bitbucket.org/jdnewman/argon/shader"
 	"unsafe"
+
+	gl "github.com/chsc/gogl/gl33"
+
+	"bitbucket.org/jdnewman/argon/renderer"
+	"bitbucket.org/jdnewman/argon/shader"
 )
 
 func init() {
 	log.Println("circle.go here")
 }
 
-//TODO Make this our default value, so it doubles as default and global for getting offsets and such
-var dummyCircle Circle
+var defaultCircle Circle = Circle{0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0}
 
-//TODO Move
-var vao, vbo gl.Uint
-var gShader shader.Shader
+var gRenderer *renderer.Renderer
+var gShader *shader.Shader
 
 type Circle struct {
 	X, Y gl.Float
@@ -27,29 +28,25 @@ type Circle struct {
 }
 
 func Init() {
-	//Setup VAO and VBO
-	gl.GenVertexArrays(1, &vao)
-	gl.GenBuffers(1, &vbo)
-
-	//-Bind
-	gl.BindVertexArray(vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-
+	//Renderer
 	//-Attributes
-	gl.VertexAttribPointer(0, 2, gl.FLOAT, gl.FALSE, gl.Sizei(unsafe.Sizeof(dummyCircle)), gl.Pointer(unsafe.Offsetof(dummyCircle.X)))
-	gl.VertexAttribPointer(1, 1, gl.FLOAT, gl.FALSE, gl.Sizei(unsafe.Sizeof(dummyCircle)), gl.Pointer(unsafe.Offsetof(dummyCircle.R)))
-	gl.VertexAttribPointer(2, 4, gl.FLOAT, gl.FALSE, gl.Sizei(unsafe.Sizeof(dummyCircle)), gl.Pointer(unsafe.Offsetof(dummyCircle.Red)))
-
-	gl.EnableVertexAttribArray(0)
-	gl.EnableVertexAttribArray(1)
-	gl.EnableVertexAttribArray(2)
-
-	//-Unbind
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
+	//TODO Get a compiler error if these intermediate offset values are used directly
+	xOffset := gl.Pointer(unsafe.Offsetof(defaultCircle.X))
+	rOffset := gl.Pointer(unsafe.Offsetof(defaultCircle.R))
+	redOffset := gl.Pointer(unsafe.Offsetof(defaultCircle.Red))
+	sizeOfCircle := gl.Sizei(unsafe.Sizeof(defaultCircle))
+	tempAttributes := []renderer.Attribute{
+		renderer.Attribute{0, 2, gl.FLOAT, gl.FALSE, sizeOfCircle, xOffset},
+		renderer.Attribute{1, 1, gl.FLOAT, gl.FALSE, sizeOfCircle, rOffset},
+		renderer.Attribute{2, 4, gl.FLOAT, gl.FALSE, sizeOfCircle, redOffset},
+	}
+	//-Create
+	gRenderer = renderer.Create(unsafe.Sizeof(defaultCircle), tempAttributes)
 
 	//Shader
+	gShader = shader.Create()
 	gShader.LoadFromFile("./shaders/circle")
+	gShader.Link()
 
 	gShader.Use()
 	//-Uniforms //TODO Remove/Move/Change
@@ -65,37 +62,13 @@ func Init() {
 }
 
 func Create() *Circle {
-	temp := new(Circle)
+	temp := defaultCircle
 
-	temp.X = 0.0;
-	temp.Y = 0.0;
-	temp.R = 1.0;
-	temp.Red = 1.0;
-	temp.Green = 1.0;
-	temp.Blue = 1.0;
-	temp.Alpha = 1.0;
-
-	return temp
+	return &temp
 }
 
 func (this *Circle) Draw() {
-	//TODO Avoid unnessessary rebinds
-	//Binds
-	gShader.Use()
-	gl.BindVertexArray(vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-
-	//Update Buffer
-	//gl.BufferData(gl.ARRAY_BUFFER, gl.Sizeiptr(unsafe.Sizeof(dummyCircle)), gl.Pointer(this), gl.DYNAMIC_DRAW)
-	gl.BufferData(gl.ARRAY_BUFFER, gl.Sizeiptr(7*4), gl.Pointer(this), gl.DYNAMIC_DRAW)
-
-	//Draw
-	gl.DrawArrays(gl.POINTS, 0, gl.Sizei(1))
-
-	//TODO Defer?
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
-	gl.UseProgram(0)
+	gRenderer.Draw(unsafe.Pointer(this), gShader)
 }
 
 //TODO REM

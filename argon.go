@@ -4,10 +4,11 @@ package argon
 
 import (
 	"fmt"
-	gl "github.com/chsc/gogl/gl33"
-	"github.com/jteeuwen/glfw"
 	"log"
 	"os"
+
+	gl "github.com/chsc/gogl/gl33"
+	"github.com/jteeuwen/glfw"
 )
 
 func init() {
@@ -47,6 +48,8 @@ func Graphics(aWidth, aHeight int, aFullscreen bool) error {
 	//-initial state
 	gl.Viewport(0, 0, gl.Sizei(aWidth), gl.Sizei(aHeight))
 	gl.ClearColor(0.4, 0.4, 0.4, 1.0)
+	gl.Enable(gl.BLEND)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 	//-log version
 	glMajor, glMinor, glRev := glfw.GLVersion()
@@ -68,7 +71,7 @@ func Cls() {
 }
 
 func Flip() {
-	//TODO TIming management and vsync?
+	//TODO Timing management and vsync?
 	glfw.SwapBuffers()
 }
 
