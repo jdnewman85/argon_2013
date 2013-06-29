@@ -74,7 +74,7 @@ func (this *Circle) Draw() {
 
 func (this *Circle) DrawData() renderer.DrawData {
 	//TODO Get rid of gl dependancies?
-	return renderer.DrawData{gl.Pointer(this), gl.Sizeiptr(unsafe.Sizeof(*this)), 1}
+	return renderer.DrawData{gl.Pointer(this), gl.Sizeiptr(unsafe.Sizeof(defaultCircle)), 1}
 }
 
 //TODO REM
