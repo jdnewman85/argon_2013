@@ -20,3 +20,5 @@ Batches
 Batch Manager?
 Conveinence draw functions under argon namespace
 
+Keep track of bound stuffs in argon itself, to prevent redundant binding?
+

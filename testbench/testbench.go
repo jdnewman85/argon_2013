@@ -16,7 +16,7 @@ func main() {
 	defer argon.EndGraphics()
 
 	//Circles
-	circle.Init()
+	circle.RendererInit()
 
 //	myCircle0 := circle.Create()
 //	myCircle1 := circle.Create()
