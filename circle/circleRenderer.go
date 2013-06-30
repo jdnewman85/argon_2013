@@ -20,59 +20,34 @@ const(
 	defaultShaderPath = "./shaders/circle"
 )
 
-var(
-	defaultRenderer *renderer.RendererBase
+type Renderer struct {
+	*renderer.RendererBase
 	defaultShader *shader.Shader
-	activeRenderer *renderer.RendererBase
-	activeShader *shader.Shader
-)
-
-func DefaultRenderer() *renderer.RendererBase {
-	return defaultRenderer
 }
 
-func DefaultShader() *shader.Shader {
-	return defaultShader
-}
-
-func ActiveRenderer() *renderer.RendererBase {
-	return activeRenderer
-}
-
-func ActiveShader() *shader.Shader {
-	return activeShader
-}
-
-func setRenderer(r *renderer.RendererBase) {
-	activeRenderer = r
-}
-
-func setShader(s *shader.Shader) {
-	activeShader = s
-}
-
-func RendererInit() {
+func NewRenderer() *Renderer {
+	temp := new(Renderer)
 	//RendererBase
-	defaultRenderer = renderer.CreateBase(RenderAttributes())
-	activeRenderer = defaultRenderer
+	temp.RendererBase = renderer.CreateBase(RenderAttributes())
 
 	//Shader
-	defaultShader = shader.Create()
-	activeShader = defaultShader
-	defaultShader.LoadFromFile(defaultShaderPath)
-	defaultShader.Link()
+	temp.defaultShader = shader.Create()
+	temp.defaultShader.LoadFromFile(defaultShaderPath)
+	temp.defaultShader.Link()
 
-	defaultShader.Use()
+	temp.defaultShader.Use()
 	//-Uniforms //TODO Remove/Move/Change
-	inOrthoLoc := gl.GetUniformLocation(defaultShader.Program, gl.GLString("inOrtho"))
+	inOrthoLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inOrtho"))
 	orthoVec := shader.MakeOrtho(argon.Width(), argon.Height())
 	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoVec[0])
 
 	//--Textures //TODO Remove/Move/Change
-	texLoc := gl.GetUniformLocation(defaultShader.Program, gl.GLString("inTexture"))
+	texLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inTexture"))
 	gl.Uniform1i(texLoc, 0)
 
 	//TODO Errors
+
+	return temp
 }
 
 func RenderAttributes() []renderer.Attribute {
@@ -90,12 +65,11 @@ func RenderAttributes() []renderer.Attribute {
 	return tempAttributes
 }
 
-func (this *Circle) RenderData() renderer.RenderData {
-	return renderer.RenderData{gl.Pointer(this), gl.Sizeiptr(unsafe.Sizeof(defaultCircle)), 1}
-}
-
-func (this *Circle) Draw() {
-	activeRenderer.Draw(this, activeShader)
+func (this *Renderer) Draw(circle interface{}) {
+	//TODO May be possible to get the pointer, size and such without the assert?
+	c := circle.(*Circle)
+	renderData := renderer.RenderData{gl.Pointer(c), gl.Sizeiptr(unsafe.Sizeof(defaultCircle)), 1}
+	this.Render(renderData, this.defaultShader)
 }
 
 //TODO Get rid of gl dependancies?

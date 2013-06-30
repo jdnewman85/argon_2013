@@ -29,11 +29,6 @@ type RenderData struct {
 	ElementNum gl.Sizei
 }
 
-type Renderable interface {
-	//TODO Include getting of Renderer, default shader?
-	RenderData() RenderData
-}
-
 type RendererBase struct {
 	vao, vbo gl.Uint
 	attributes []Attribute
@@ -65,10 +60,7 @@ func CreateBase(attributes []Attribute) *RendererBase {
 	return temp
 }
 
-func (this *RendererBase) Draw(elements Renderable, aShader *shader.Shader) {
-
-	//Get Drawable data
-	drawData := elements.RenderData()
+func (this *RendererBase) Render(elements RenderData, aShader *shader.Shader) {
 
 	//TODO Avoid unnessessary rebinds
 	//Binds
@@ -77,10 +69,10 @@ func (this *RendererBase) Draw(elements Renderable, aShader *shader.Shader) {
 	gl.BindBuffer(gl.ARRAY_BUFFER, this.vbo)
 
 	//Update Buffer
-	gl.BufferData(gl.ARRAY_BUFFER, drawData.ArraySize, drawData.ArrayData, gl.DYNAMIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)
 
 	//Draw
-	gl.DrawArrays(gl.POINTS, 0, drawData.ElementNum)
+	gl.DrawArrays(gl.POINTS, 0, elements.ElementNum)
 
 	//TODO Defer?
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
