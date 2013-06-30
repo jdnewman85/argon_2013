@@ -11,6 +11,10 @@ import (
 	"github.com/jteeuwen/glfw"
 )
 
+var(
+	gWidth, gHeight int
+)
+
 func init() {
 	log.Println("argon.go here")
 }
@@ -36,6 +40,7 @@ func Graphics(aWidth, aHeight int, aFullscreen bool) error {
 		fmt.Fprintf(os.Stderr, "glfw: %s\n", err)
 		return err
 	}
+	gWidth, gHeight = aWidth, aHeight
 
 	glfw.SetSwapInterval(1)
 
@@ -82,3 +87,10 @@ func WindowOpen() bool {
 	return false
 }
 
+func Width() int {
+	return gWidth
+}
+
+func Height() int {
+	return gHeight
+}
