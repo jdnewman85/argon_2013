@@ -29,19 +29,18 @@ type RenderData struct {
 	ElementNum gl.Sizei
 }
 
-//TODO Rename? (Would like this for the Draw() interface)
 type Renderable interface {
 	//TODO Include getting of Renderer, default shader?
 	RenderData() RenderData
 }
 
-type Renderer struct {
+type RendererBase struct {
 	vao, vbo gl.Uint
 	attributes []Attribute
 }
 
-func Create(attributes []Attribute) *Renderer {
-	temp := new(Renderer)
+func CreateBase(attributes []Attribute) *RendererBase {
+	temp := new(RendererBase)
 
 	temp.attributes = attributes
 
@@ -66,7 +65,7 @@ func Create(attributes []Attribute) *Renderer {
 	return temp
 }
 
-func (this *Renderer) Draw(elements Renderable, aShader *shader.Shader) {
+func (this *RendererBase) Draw(elements Renderable, aShader *shader.Shader) {
 
 	//Get Drawable data
 	drawData := elements.RenderData()

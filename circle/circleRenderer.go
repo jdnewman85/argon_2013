@@ -21,13 +21,13 @@ const(
 )
 
 var(
-	defaultRenderer *renderer.Renderer
+	defaultRenderer *renderer.RendererBase
 	defaultShader *shader.Shader
-	activeRenderer *renderer.Renderer
+	activeRenderer *renderer.RendererBase
 	activeShader *shader.Shader
 )
 
-func DefaultRenderer() *renderer.Renderer {
+func DefaultRenderer() *renderer.RendererBase {
 	return defaultRenderer
 }
 
@@ -35,7 +35,7 @@ func DefaultShader() *shader.Shader {
 	return defaultShader
 }
 
-func ActiveRenderer() *renderer.Renderer {
+func ActiveRenderer() *renderer.RendererBase {
 	return activeRenderer
 }
 
@@ -43,7 +43,7 @@ func ActiveShader() *shader.Shader {
 	return activeShader
 }
 
-func setRenderer(r *renderer.Renderer) {
+func setRenderer(r *renderer.RendererBase) {
 	activeRenderer = r
 }
 
@@ -52,8 +52,8 @@ func setShader(s *shader.Shader) {
 }
 
 func RendererInit() {
-	//Renderer
-	defaultRenderer = renderer.Create(RenderAttributes())
+	//RendererBase
+	defaultRenderer = renderer.CreateBase(RenderAttributes())
 	activeRenderer = defaultRenderer
 
 	//Shader
