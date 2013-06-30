@@ -15,6 +15,7 @@ func main() {
 	argon.Graphics(1280, 720, false)
 	defer argon.EndGraphics()
 
+	//Circles
 	circle.Init()
 
 //	myCircle0 := circle.Create()
@@ -83,11 +84,14 @@ func main() {
 
 	for argon.WindowOpen() {
 		argon.Cls()
+
+		//Circles
 //		myCircle0.Draw()
 //		myCircle1.Draw()
 //		myCircle2.Draw()
 //		myCircle3.Draw()
 		mahCircles.Draw()
+
 		argon.Flip()
 	}
 
