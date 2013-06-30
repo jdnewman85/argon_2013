@@ -12,8 +12,11 @@ import (
 func main() {
 	fmt.Println("This is a testbench.")
 
-	argon.Graphics(1280, 720, false)
-	defer argon.EndGraphics()
+	myGraphics, err := argon.NewGraphics(1280, 720, false)
+	if err != nil {
+		fmt.Println("ERROR: %s", err)
+	}
+	defer myGraphics.Destroy()
 
 	//Circles
 	circleRenderer := circle.NewRenderer()
@@ -52,8 +55,8 @@ func main() {
 	myCircle3.Alpha = 1.0
 
 
-	for argon.WindowOpen() {
-		argon.Cls()
+	for myGraphics.Open() {
+		myGraphics.Cls()
 
 		//Circles
 		circleRenderer.Draw(myCircle0)
@@ -61,7 +64,7 @@ func main() {
 		circleRenderer.Draw(myCircle2)
 		circleRenderer.Draw(myCircle3)
 
-		argon.Flip()
+		myGraphics.Flip()
 	}
 
 }

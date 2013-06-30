@@ -11,47 +11,51 @@ import (
 	"github.com/jteeuwen/glfw"
 )
 
+type Graphics struct {
+	width, height int
+}
+
 var(
-	gWidth, gHeight int
+	//TODO TEMP Remove when ortho uniform becomes external to renderer
+	Width, Height int
 )
 
 func init() {
 	log.Println("argon.go here")
 }
 
-func Graphics(aWidth, aHeight int, aFullscreen bool) error {
+func NewGraphics(width, height int, fullscreen bool) (*Graphics, error) {
 
 	//glfw
 	if err := glfw.Init(); err != nil {
 		fmt.Fprintf(os.Stderr, "glfw: %s\n", err)
-		return err
+		return nil,err
 	}
 
 	//-hints
 	glfw.OpenWindowHint(glfw.WindowNoResize, 1)
 
 	//Fullscreen param
-	fullscreen := glfw.Windowed
-	if  aFullscreen {
-		fullscreen = glfw.Fullscreen
+	glfwFullscreen := glfw.Windowed
+	if  fullscreen {
+		glfwFullscreen = glfw.Fullscreen
 	}
 
-	if err := glfw.OpenWindow(aWidth, aHeight, 0, 0, 0, 0, 0, 0, fullscreen); err != nil {
+	if err := glfw.OpenWindow(width, height, 0, 0, 0, 0, 0, 0, glfwFullscreen); err != nil {
 		fmt.Fprintf(os.Stderr, "glfw: %s\n", err)
-		return err
+		return nil,err
 	}
-	gWidth, gHeight = aWidth, aHeight
 
 	glfw.SetSwapInterval(1)
 
 	//opengl
 	if err := gl.Init(); err != nil {
 		fmt.Fprintf(os.Stderr, "gl: %s\n", err)
-		return err
+		return nil, err
 	}
 
 	//-initial state
-	gl.Viewport(0, 0, gl.Sizei(aWidth), gl.Sizei(aHeight))
+	gl.Viewport(0, 0, gl.Sizei(width), gl.Sizei(height))
 	gl.ClearColor(0.4, 0.4, 0.4, 1.0)
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
@@ -61,36 +65,42 @@ func Graphics(aWidth, aHeight int, aFullscreen bool) error {
 	log.Printf("%d %d %d", glMajor, glMinor, glRev)
 	log.Println(gl.GoStringUb(gl.GetString(gl.VERSION)))
 
-	return nil
+	//TODO TEMP Remove when ortho uniform becomes external to renderer
+	Width, Height = width, height
+	return &Graphics{width: width, height: height}, nil
 }
 
-func EndGraphics() {
+func (this *Graphics) Destroy() {
+	//TODO TEMP Remove when ortho uniform becomes external to renderer
+	Width, Height = 0, 0
+	this.width, this.height = 0, 0
+
 	//TODO Free all images, and stuffs?
 	glfw.CloseWindow()
 	glfw.Terminate()
 }
 
-func Cls() {
+func (this *Graphics) Cls() {
 	//TODO Other buffers
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 }
 
-func Flip() {
+func (this *Graphics) Flip() {
 	//TODO Timing management and vsync?
 	glfw.SwapBuffers()
 }
 
-func WindowOpen() bool {
+func (this *Graphics) Open() bool {
 	if glfw.WindowParam(glfw.Opened) == gl.TRUE {
 		return true
 	}
 	return false
 }
 
-func Width() int {
-	return gWidth
+func (this *Graphics) Width() int {
+	return this.width
 }
 
-func Height() int {
-	return gHeight
+func (this *Graphics) Height() int {
+	return this.height
 }

@@ -38,7 +38,7 @@ func NewRenderer() *Renderer {
 	temp.defaultShader.Use()
 	//-Uniforms //TODO Remove/Move/Change
 	inOrthoLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inOrtho"))
-	orthoVec := shader.MakeOrtho(argon.Width(), argon.Height())
+	orthoVec := shader.MakeOrtho(argon.Width, argon.Height)
 	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoVec[0])
 
 	//--Textures //TODO Remove/Move/Change
