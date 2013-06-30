@@ -22,3 +22,4 @@ Conveinence draw functions under argon namespace
 
 Keep track of bound stuffs in argon itself, to prevent redundant binding?
 
+May recreate the renderer.Create method to take a renderable interface type instead of the attributes

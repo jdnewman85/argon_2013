@@ -6,6 +6,8 @@ import (
 	"unsafe"
 
 	gl "github.com/chsc/gogl/gl33"
+
+	"bitbucket.org/jdnewman/argon/renderer"
 )
 
 func init() {
@@ -13,12 +15,12 @@ func init() {
 }
 
 func (this *Circles) Draw() {
-	gRenderer.Draw(this, gShader)
+	activeRenderer.Draw(this, activeShader)
 }
 
-func (this *Circles) DrawData() renderer.DrawData {
+func (this *Circles) RenderData() renderer.RenderData {
 	//TODO Get rid of gl dependancies?
 	circleArray := (*this).CircleArray()
-	return renderer.DrawData{gl.Pointer(&circleArray[0]), gl.Sizeiptr(unsafe.Sizeof(defaultCircle)*uintptr(len(circleArray))), gl.Sizei(len(circleArray))}
+	return renderer.RenderData{gl.Pointer(&circleArray[0]), gl.Sizeiptr(unsafe.Sizeof(defaultCircle)*uintptr(len(circleArray))), gl.Sizei(len(circleArray))}
 }
 

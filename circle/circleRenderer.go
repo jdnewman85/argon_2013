@@ -21,33 +21,61 @@ const(
 )
 
 var(
-	gRenderer *renderer.Renderer
-	gShader *shader.Shader
+	defaultRenderer *renderer.Renderer
+	defaultShader *shader.Shader
+	activeRenderer *renderer.Renderer
+	activeShader *shader.Shader
 )
+
+func DefaultRenderer() *renderer.Renderer {
+	return defaultRenderer
+}
+
+func DefaultShader() *shader.Shader {
+	return defaultShader
+}
+
+func ActiveRenderer() *renderer.Renderer {
+	return activeRenderer
+}
+
+func ActiveShader() *shader.Shader {
+	return activeShader
+}
+
+func setRenderer(r *renderer.Renderer) {
+	activeRenderer = r
+}
+
+func setShader(s *shader.Shader) {
+	activeShader = s
+}
 
 func RendererInit() {
 	//Renderer
-	gRenderer = renderer.Create(DrawAttributes())
+	defaultRenderer = renderer.Create(RenderAttributes())
+	activeRenderer = defaultRenderer
 
 	//Shader
-	gShader = shader.Create()
-	gShader.LoadFromFile(defaultShaderPath)
-	gShader.Link()
+	defaultShader = shader.Create()
+	activeShader = defaultShader
+	defaultShader.LoadFromFile(defaultShaderPath)
+	defaultShader.Link()
 
-	gShader.Use()
+	defaultShader.Use()
 	//-Uniforms //TODO Remove/Move/Change
-	inOrthoLoc := gl.GetUniformLocation(gShader.Program, gl.GLString("inOrtho"))
+	inOrthoLoc := gl.GetUniformLocation(defaultShader.Program, gl.GLString("inOrtho"))
 	orthoVec := shader.MakeOrtho(argon.Width(), argon.Height())
 	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoVec[0])
 
 	//--Textures //TODO Remove/Move/Change
-	texLoc := gl.GetUniformLocation(gShader.Program, gl.GLString("inTexture"))
+	texLoc := gl.GetUniformLocation(defaultShader.Program, gl.GLString("inTexture"))
 	gl.Uniform1i(texLoc, 0)
 
 	//TODO Errors
 }
 
-func DrawAttributes() []renderer.Attribute {
+func RenderAttributes() []renderer.Attribute {
 	//TODO Compiler error if these intermediate offset values are used directly
 	xOffset := gl.Pointer(unsafe.Offsetof(defaultCircle.X))
 	rOffset := gl.Pointer(unsafe.Offsetof(defaultCircle.R))
@@ -62,12 +90,12 @@ func DrawAttributes() []renderer.Attribute {
 	return tempAttributes
 }
 
-func (this *Circle) DrawData() renderer.DrawData {
-	return renderer.DrawData{gl.Pointer(this), gl.Sizeiptr(unsafe.Sizeof(defaultCircle)), 1}
+func (this *Circle) RenderData() renderer.RenderData {
+	return renderer.RenderData{gl.Pointer(this), gl.Sizeiptr(unsafe.Sizeof(defaultCircle)), 1}
 }
 
 func (this *Circle) Draw() {
-	gRenderer.Draw(this, gShader)
+	activeRenderer.Draw(this, activeShader)
 }
 
 //TODO Get rid of gl dependancies?

@@ -23,16 +23,16 @@ type Attribute struct {
 	Offset gl.Pointer
 }
 
-type DrawData struct {
+type RenderData struct {
 	ArrayData gl.Pointer
 	ArraySize gl.Sizeiptr
 	ElementNum gl.Sizei
 }
 
 //TODO Rename? (Would like this for the Draw() interface)
-type Drawable interface {
+type Renderable interface {
 	//TODO Include getting of Renderer, default shader?
-	DrawData() DrawData
+	RenderData() RenderData
 }
 
 type Renderer struct {
@@ -66,10 +66,10 @@ func Create(attributes []Attribute) *Renderer {
 	return temp
 }
 
-func (this *Renderer) Draw(elements Drawable, aShader *shader.Shader) {
+func (this *Renderer) Draw(elements Renderable, aShader *shader.Shader) {
 
 	//Get Drawable data
-	drawData := elements.DrawData()
+	drawData := elements.RenderData()
 
 	//TODO Avoid unnessessary rebinds
 	//Binds

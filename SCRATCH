@@ -1,0 +1,11 @@
+
+Ok!
+I could have a render dispatcher in argon
+-Initialized on init, creating a list of types/renderers
+-Has a method 'Draw' that takes a 'Drawable'
+-Looks up methods type in list, and calls the correct renderer
+
+NOTE: This is solved by the interface actually...
+
+Maybe instead, the interface should have setShader, and setRenderer, allowing it to be user plugable
+-In that vein, the getAttributes, and getData are needed for seperate package renderers
