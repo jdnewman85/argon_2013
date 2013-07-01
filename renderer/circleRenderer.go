@@ -19,11 +19,11 @@ type CircleRenderer struct {
 }
 
 func NewCircleRenderer() *CircleRenderer {
-	circleRenderer := new(CircleRenderer)
+	//Load Default Shaders
+	sources := []string{"./shaders/circle.vert", "./shaders/circle.geom", "./shaders/circle.frag"}
+	rendererBase := NewRendererBase(CircleRenderAttributes(), sources)
 
-	circleRenderer.RendererBase = NewRendererBase(CircleRenderAttributes())
-
-	return circleRenderer
+	return &CircleRenderer{rendererBase}
 }
 
 func CircleRenderAttributes() []Attribute {

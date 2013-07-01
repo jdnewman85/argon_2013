@@ -40,7 +40,7 @@ type Renderer interface {
 	Render(elements RenderData, aShader *shader.Shader)
 }
 
-func NewRendererBase(renderAttributes []Attribute) *RendererBase {
+func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) *RendererBase {
 	temp := new(RendererBase)
 	temp.attributes = renderAttributes
 
@@ -65,9 +65,8 @@ func NewRendererBase(renderAttributes []Attribute) *RendererBase {
 
 
 	//Shader
-	temp.defaultShader = shader.Create()
-	temp.defaultShader.LoadFromFile("./shaders/circle") //TODO TEMP Path
-	temp.defaultShader.Link()
+	temp.defaultShader, _ = shader.CreateFromFiles(defaultShaderPaths)
+	//TODO ERROR on err here!
 
 	temp.defaultShader.Use()
 	//-Uniforms //TODO Remove/Move/Change
