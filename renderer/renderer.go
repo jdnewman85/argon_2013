@@ -3,7 +3,7 @@ package renderer
 
 import(
 	"log"
-	//"unsafe"
+	"reflect"
 
 	gl "github.com/chsc/gogl/gl33"
 
@@ -79,7 +79,7 @@ func NewRendererBase(renderAttributes []Attribute) *RendererBase {
 	texLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inTexture"))
 	gl.Uniform1i(texLoc, 0)
 
-	//TODO Errors
+	//TODO Error Handling/Reporting
 
 
 	return temp
@@ -103,6 +103,13 @@ func (this *RendererBase) Render(elements RenderData, aShader *shader.Shader) {
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
+}
+
+func (this *RendererBase) Draw(entity interface{}) {
+	entityPointer := reflect.ValueOf(entity).Pointer()
+	entitySize := reflect.TypeOf(entity).Elem().Size()
+	renderData := RenderData{gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), 1}
+	this.Render(renderData, this.defaultShader)
 }
 
 //TODO Assert on dataSizes and such not matching multiples of stored correct value?

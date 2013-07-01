@@ -21,12 +21,12 @@ type CircleRenderer struct {
 func NewCircleRenderer() *CircleRenderer {
 	circleRenderer := new(CircleRenderer)
 
-	circleRenderer.RendererBase = NewRendererBase(RenderAttributes())
+	circleRenderer.RendererBase = NewRendererBase(CircleRenderAttributes())
 
 	return circleRenderer
 }
 
-func RenderAttributes() []Attribute {
+func CircleRenderAttributes() []Attribute {
 	//TODO Compiler error if these intermediate offset values are used directly
 	xOffset := gl.Pointer(unsafe.Offsetof(argon.DefaultCircle.X))
 	rOffset := gl.Pointer(unsafe.Offsetof(argon.DefaultCircle.R))
@@ -42,10 +42,11 @@ func RenderAttributes() []Attribute {
 }
 
 func (this *CircleRenderer) Draw(circle interface{}) {
-	//TODO May be possible to get the pointer, size and such without the assert?
 	c := circle.(*argon.Circle)
-	renderData := RenderData{gl.Pointer(c), gl.Sizeiptr(unsafe.Sizeof(argon.DefaultCircle)), 1}
-	this.Render(renderData, this.defaultShader)
+	//If the renderer needed custom renderData, it could use it here
+	//renderData := RenderData{gl.Pointer(c), gl.Sizeiptr(unsafe.Sizeof(argon.DefaultCircle)), 1}
+	//this.Render(renderData, this.defaultShader)
+	this.RendererBase.Draw(c)
 }
 
 //TODO Get rid of gl dependancies?
