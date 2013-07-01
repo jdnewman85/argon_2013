@@ -4,9 +4,10 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 
 	"bitbucket.org/jdnewman/argon"
-	"bitbucket.org/jdnewman/argon/circle"
+	"bitbucket.org/jdnewman/argon/renderer"
 )
 
 func main() {
@@ -19,12 +20,13 @@ func main() {
 	defer myGraphics.Destroy()
 
 	//Circles
-	circleRenderer := circle.NewRenderer()
+	circleRenderer := renderer.NewCircleRenderer()
+	myCircle0 := argon.NewCircle()
+	myGraphics.DrawMap[reflect.TypeOf(myCircle0)] = circleRenderer
 
-	myCircle0 := circle.Create()
-	myCircle1 := circle.Create()
-	myCircle2 := circle.Create()
-	myCircle3 := circle.Create()
+	myCircle1 := argon.NewCircle()
+	myCircle2 := argon.NewCircle()
+	myCircle3 := argon.NewCircle()
 	myCircle0.X = 200.0
 	myCircle0.Y = 200.0
 	myCircle0.R = 25.0
@@ -59,10 +61,14 @@ func main() {
 		myGraphics.Cls()
 
 		//Circles
-		circleRenderer.Draw(myCircle0)
-		circleRenderer.Draw(myCircle1)
-		circleRenderer.Draw(myCircle2)
-		circleRenderer.Draw(myCircle3)
+//		circleRenderer.Draw(myCircle0)
+//		circleRenderer.Draw(myCircle1)
+//		circleRenderer.Draw(myCircle2)
+//		circleRenderer.Draw(myCircle3)
+		myGraphics.Draw(myCircle0)
+		myGraphics.Draw(myCircle1)
+		myGraphics.Draw(myCircle2)
+		myGraphics.Draw(myCircle3)
 
 		myGraphics.Flip()
 	}

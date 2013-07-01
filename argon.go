@@ -5,6 +5,7 @@ package argon
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"os"
 
 	gl "github.com/chsc/gogl/gl33"
@@ -13,6 +14,11 @@ import (
 
 type Graphics struct {
 	width, height int
+	DrawMap map[reflect.Type] Renderer
+}
+
+type Renderer interface {
+	Draw(interface{})
 }
 
 var(
@@ -22,6 +28,15 @@ var(
 
 func init() {
 	log.Println("argon.go here")
+}
+
+func (this *Graphics) Draw(element interface{}) {
+	renderer, ok := this.DrawMap[reflect.TypeOf(element)]
+	if !ok {
+		fmt.Fprintf(os.Stderr, "argon: No renderer registered for %v", element)
+		return
+	}
+	renderer.Draw(element)
 }
 
 func NewGraphics(width, height int, fullscreen bool) (*Graphics, error) {
@@ -67,7 +82,12 @@ func NewGraphics(width, height int, fullscreen bool) (*Graphics, error) {
 
 	//TODO TEMP Remove when ortho uniform becomes external to renderer
 	Width, Height = width, height
-	return &Graphics{width: width, height: height}, nil
+	//Graphics Struct
+	graphics := new(Graphics)
+	graphics.width, graphics.height = width, height
+	graphics.DrawMap = make(map[reflect.Type]Renderer)
+
+	return graphics, nil
 }
 
 func (this *Graphics) Destroy() {

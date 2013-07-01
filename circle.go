@@ -1,6 +1,6 @@
 // Circle Primitive
 
-package circle
+package argon
 
 import (
 	"log"
@@ -12,7 +12,7 @@ func init() {
 	log.Println("circle.go here")
 }
 
-var defaultCircle Circle = Circle{0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+var DefaultCircle Circle = Circle{0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0}
 
 type Circle struct {
 	X, Y gl.Float
@@ -20,9 +20,9 @@ type Circle struct {
 	Red, Green, Blue, Alpha gl.Float
 }
 
-func Create() *Circle {
-	temp := defaultCircle
+func NewCircle() *Circle {
+	circle := DefaultCircle
 
-	return &temp
+	return &circle
 }
 

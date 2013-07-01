@@ -7,6 +7,7 @@ import(
 
 	gl "github.com/chsc/gogl/gl33"
 
+	"bitbucket.org/jdnewman/argon"
 	"bitbucket.org/jdnewman/argon/shader"
 )
 
@@ -32,12 +33,17 @@ type RenderData struct {
 type RendererBase struct {
 	vao, vbo gl.Uint
 	attributes []Attribute
+	defaultShader *shader.Shader
 }
 
-func CreateBase(attributes []Attribute) *RendererBase {
-	temp := new(RendererBase)
+type Renderer interface {
+	Render(elements RenderData, aShader *shader.Shader)
+}
 
-	temp.attributes = attributes
+func NewRendererBase(renderAttributes []Attribute) *RendererBase {
+	temp := new(RendererBase)
+	temp.attributes = renderAttributes
+
 
 	//Setup VAO and VBO
 	gl.GenVertexArrays(1, &temp.vao)
@@ -48,7 +54,7 @@ func CreateBase(attributes []Attribute) *RendererBase {
 	gl.BindBuffer(gl.ARRAY_BUFFER, temp.vbo)
 
 	//-Attributes
-	for _,t := range attributes {
+	for _,t := range renderAttributes {
 		gl.VertexAttribPointer(t.Index, t.Size, t.Kind, t.Normalized, t.Stride, t.Offset)
 		gl.EnableVertexAttribArray(t.Index)
 	}
@@ -56,6 +62,25 @@ func CreateBase(attributes []Attribute) *RendererBase {
 	//-Unbind
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
+
+
+	//Shader
+	temp.defaultShader = shader.Create()
+	temp.defaultShader.LoadFromFile("./shaders/circle") //TODO TEMP Path
+	temp.defaultShader.Link()
+
+	temp.defaultShader.Use()
+	//-Uniforms //TODO Remove/Move/Change
+	inOrthoLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inOrtho"))
+	orthoVec := shader.MakeOrtho(argon.Width, argon.Height)
+	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoVec[0])
+
+	//--Textures //TODO Remove/Move/Change
+	texLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inTexture"))
+	gl.Uniform1i(texLoc, 0)
+
+	//TODO Errors
+
 
 	return temp
 }
