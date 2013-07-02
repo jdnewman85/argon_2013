@@ -24,3 +24,7 @@ Keep track of bound stuffs in argon itself, to prevent redundant binding?
 
 May recreate the renderer.Create method to take a renderable interface type instead of the attributes
 Possibly move circle and other primitives, they are auxilary things for the main engine
+
+May make it so that most functions just return errors instead of printing themselves?
+	Maybe only acceptable failures
+	Switch to panics for unacceptable failures

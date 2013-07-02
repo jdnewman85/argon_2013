@@ -28,53 +28,8 @@ func Create() *Shader {
 	return temp
 }
 
-func (this *Shader) LoadFromFile(fileName string) error {
-	this.Program = gl.CreateProgram()
-
-	//TODO How about we pass an array of filenames and loop through and load?
-	//Vert
-	if source, err := ioutil.ReadFile(fileName+".vert"); err != nil {
-		fmt.Fprintf(os.Stderr, "material - vert: %s\n", err)
-		return err
-	} else {
-		glSource := gl.GLString(string(source))
-		shader := gl.CreateShader(gl.VERTEX_SHADER)
-		gl.ShaderSource(shader, 1, &glSource, nil)
-		gl.CompileShader(shader)
-		//Check compiled status TODO
-		gl.AttachShader(this.Program, shader)
-	}
-
-	//Frag
-	if source, err := ioutil.ReadFile(fileName+".frag"); err != nil {
-		fmt.Fprintf(os.Stderr, "material - frag: %s\n", err)
-		return err
-	} else {
-		glSource := gl.GLString(string(source))
-		shader := gl.CreateShader(gl.FRAGMENT_SHADER)
-		gl.ShaderSource(shader, 1, &glSource, nil)
-		gl.CompileShader(shader)
-		//Check compiled status TODO
-		gl.AttachShader(this.Program, shader)
-	}
-
-	//Geom
-	if source, err := ioutil.ReadFile(fileName+".geom"); err != nil {
-		fmt.Fprintf(os.Stderr, "material - geom: %s\n", err)
-		return err
-	} else {
-		glSource := gl.GLString(string(source))
-		shader := gl.CreateShader(gl.GEOMETRY_SHADER)
-		gl.ShaderSource(shader, 1, &glSource, nil)
-		gl.CompileShader(shader)
-		//Check compiled status TODO
-		gl.AttachShader(this.Program, shader)
-	}
-
-	return nil
-}
-
 func CreateFromFiles(fileNames []string) (*Shader, error) {
+	//TODO Make these errors more destriptive maybe?
 	program := gl.CreateProgram()
 
 	for _, fileName := range fileNames {
@@ -88,8 +43,8 @@ func CreateFromFiles(fileNames []string) (*Shader, error) {
 			case ".frag":
 				shaderType = gl.FRAGMENT_SHADER
 			default:
-				fmt.Fprintf(os.Stderr, "shader - Unsupported Extension: %s", fileName)
-				return nil, errors.New("shader - Unsuported Extension")
+				fmt.Fprintf(os.Stderr, "shader: Unsupported Extension: %s\n", fileName)
+				return nil, errors.New("shader: Unsuported Extension\n")
 		}
 		if source, err := ioutil.ReadFile(fileName); err != nil {
 			fmt.Fprintf(os.Stderr, "shader: %s\n", err)
@@ -99,7 +54,12 @@ func CreateFromFiles(fileNames []string) (*Shader, error) {
 			shader := gl.CreateShader(shaderType)
 			gl.ShaderSource(shader, 1, &glSource, nil)
 			gl.CompileShader(shader)
-			//Check compiled status TODO
+			//Compile check
+			var status gl.Int
+			if gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status); status != gl.TRUE {
+				//Failed
+				fmt.Fprintf(os.Stderr, "shader: %s\n", shaderInfoLog(shader))
+			}
 			gl.AttachShader(program, shader)
 		}
 	}
@@ -116,6 +76,24 @@ func (this *Shader) Link() {
 
 func (this *Shader) Use() {
 	gl.UseProgram(this.Program)
+}
+
+func shaderInfoLog(shader gl.Uint) (rString string) {
+	var infoLogLength gl.Int
+	var charsWritten gl.Sizei
+
+	gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &infoLogLength)
+
+	if infoLogLength > 0 {
+		infoLog := gl.GLStringAlloc(gl.Sizei(infoLogLength))
+		gl.GetShaderInfoLog(shader, gl.Sizei(infoLogLength), &charsWritten, infoLog)
+		rString = gl.GoString(infoLog)
+		gl.GLStringFree(infoLog)
+
+		return
+	}
+
+	return ""
 }
 
 //TODO REM
