@@ -42,11 +42,11 @@ func CircleRenderAttributes() []Attribute {
 }
 
 func (this *CircleRenderer) Draw(circle interface{}) {
-	c := circle.(*argon.Circle)
+	//c := circle.(*argon.Circle)
 	//If the renderer needed custom renderData, it could use it here
 	//renderData := RenderData{gl.Pointer(c), gl.Sizeiptr(unsafe.Sizeof(argon.DefaultCircle)), 1}
 	//this.Render(renderData, this.defaultShader)
-	this.RendererBase.Draw(c)
+	this.RendererBase.Draw(circle)
 }
 
 //TODO Get rid of gl dependancies?

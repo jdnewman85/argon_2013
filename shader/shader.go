@@ -93,7 +93,8 @@ func shaderInfoLog(shader gl.Uint) (rString string) {
 		return
 	}
 
-	return ""
+	//TODO Temp
+	return "No Log"
 }
 
 //TODO REM

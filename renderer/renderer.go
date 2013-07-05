@@ -105,9 +105,34 @@ func (this *RendererBase) Render(elements RenderData, aShader *shader.Shader) {
 }
 
 func (this *RendererBase) Draw(entity interface{}) {
-	entityPointer := reflect.ValueOf(entity).Pointer()
-	entitySize := reflect.TypeOf(entity).Elem().Size()
-	renderData := RenderData{gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), 1}
+	var numEntities int = 1
+	var entitySize uintptr = 0
+	var entityPointer uintptr
+	interfaceType := reflect.TypeOf(entity).Kind()
+	switch interfaceType { //FINISH HERE!
+	case reflect.Slice:
+		entityPointer = reflect.ValueOf(entity).Pointer()
+		numEntities = reflect.ValueOf(entity).Len()
+		entitySize = reflect.TypeOf(entity).Elem().Size()*uintptr(numEntities)
+	case reflect.Array:
+		numEntities = reflect.ValueOf(entity).Len()
+		tempSlice := reflect.MakeSlice(reflect.SliceOf(reflect.ValueOf(entity).Index(0).Type()), 0, numEntities)
+		for i := 0; i < numEntities; i++ {
+			tempSlice = reflect.Append(tempSlice, reflect.ValueOf(entity).Index(i))
+		}
+		entityPointer = tempSlice.Pointer()
+		entitySize = reflect.TypeOf(entity).Elem().Size()*uintptr(numEntities)
+	case reflect.Ptr:
+		entityPointer = reflect.ValueOf(entity).Pointer()
+		entitySize = reflect.TypeOf(entity).Elem().Size()*uintptr(numEntities)
+	case reflect.Struct:
+		entityPointer = reflect.ValueOf(entity).UnsafeAddr()
+		entitySize = reflect.TypeOf(entity).Size()*uintptr(numEntities)
+	default:
+		//TODO Better error stuffs
+		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
+	}
+	renderData := RenderData{gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities)}
 	this.Render(renderData, this.defaultShader)
 }
 

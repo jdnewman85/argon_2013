@@ -23,6 +23,8 @@ func main() {
 	circleRenderer := renderer.NewCircleRenderer()
 	myCircle0 := argon.NewCircle()
 	myGraphics.DrawMap[reflect.TypeOf(myCircle0)] = circleRenderer
+	myGraphics.DrawMap[reflect.TypeOf([]argon.Circle{*myCircle0})] = circleRenderer
+	myGraphics.DrawMap[reflect.TypeOf([3]argon.Circle{*myCircle0})] = circleRenderer
 
 	myCircle1 := argon.NewCircle()
 	myCircle2 := argon.NewCircle()
@@ -57,7 +59,7 @@ func main() {
 	myCircle3.Alpha = 1.0
 
 
-	for myGraphics.Open() {
+	for !myGraphics.ShouldClose() {
 		myGraphics.Cls()
 
 		//Circles
@@ -65,9 +67,9 @@ func main() {
 //		circleRenderer.Draw(myCircle1)
 //		circleRenderer.Draw(myCircle2)
 //		circleRenderer.Draw(myCircle3)
-		myGraphics.Draw(myCircle0)
-		myGraphics.Draw(myCircle1)
-		myGraphics.Draw(myCircle2)
+		myGraphics.Draw([...]argon.Circle{*myCircle0, *myCircle1, *myCircle2})
+//		myGraphics.Draw(myCircle1)
+//		myGraphics.Draw(myCircle2)
 		myGraphics.Draw(myCircle3)
 
 		myGraphics.Flip()

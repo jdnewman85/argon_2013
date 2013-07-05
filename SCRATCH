@@ -1,1 +1,7 @@
-
+Potential handled cases for default renderer interface
+	Slice of Pointers to Struct
+	Pointer to Struct
+	Struct
+	Slice of Struct
+	Array of Pointers to Struct
+	Array of Struct
