@@ -20,9 +20,3 @@ type Circle struct {
 	Red, Green, Blue, Alpha gl.Float
 }
 
-func NewCircle() *Circle {
-	circle := DefaultCircle
-
-	return &circle
-}
-

@@ -16,7 +16,7 @@ import (
 type Graphics struct {
 	width, height int
 	window *glfw.Window
-	DrawMap map[reflect.Type] Renderer
+	drawMap map[reflect.Type] Renderer
 }
 
 type Renderer interface {
@@ -33,12 +33,16 @@ func init() {
 }
 
 func (this *Graphics) Draw(element interface{}) {
-	renderer, ok := this.DrawMap[reflect.TypeOf(element)]
+	renderer, ok := this.drawMap[reflect.TypeOf(element)]
 	if !ok {
-		fmt.Fprintf(os.Stderr, "argon: No renderer registered for %v", element)
+		fmt.Fprintf(os.Stderr, "argon: No renderer registered for %s\n", reflect.TypeOf(element))
 		return
 	}
 	renderer.Draw(element)
+}
+
+func (this *Graphics) RegisterRenderer(element interface{}, renderer Renderer) {
+	this.drawMap[reflect.TypeOf(element)] = renderer
 }
 
 func NewGraphics(width, height int, fullscreen bool) (*Graphics, error) {
@@ -99,7 +103,7 @@ func NewGraphics(width, height int, fullscreen bool) (*Graphics, error) {
 	graphics := new(Graphics)
 	graphics.width, graphics.height = width, height
 	graphics.window = window
-	graphics.DrawMap = make(map[reflect.Type]Renderer)
+	graphics.drawMap = make(map[reflect.Type]Renderer)
 
 	return graphics, nil
 }

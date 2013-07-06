@@ -105,11 +105,12 @@ func (this *RendererBase) Render(elements RenderData, aShader *shader.Shader) {
 }
 
 func (this *RendererBase) Draw(entity interface{}) {
+	//TODO: Cleanup this a bit
 	var numEntities int = 1
 	var entitySize uintptr = 0
 	var entityPointer uintptr
 	interfaceType := reflect.TypeOf(entity).Kind()
-	switch interfaceType { //FINISH HERE!
+	switch interfaceType {
 	case reflect.Slice:
 		entityPointer = reflect.ValueOf(entity).Pointer()
 		numEntities = reflect.ValueOf(entity).Len()
@@ -126,7 +127,9 @@ func (this *RendererBase) Draw(entity interface{}) {
 		entityPointer = reflect.ValueOf(entity).Pointer()
 		entitySize = reflect.TypeOf(entity).Elem().Size()*uintptr(numEntities)
 	case reflect.Struct:
-		entityPointer = reflect.ValueOf(entity).UnsafeAddr()
+		tempSlice := reflect.MakeSlice(reflect.SliceOf(reflect.ValueOf(entity).Type()), 0, numEntities)
+		tempSlice = reflect.Append(tempSlice, reflect.ValueOf(entity))
+		entityPointer = tempSlice.Pointer()
 		entitySize = reflect.TypeOf(entity).Size()*uintptr(numEntities)
 	default:
 		//TODO Better error stuffs
