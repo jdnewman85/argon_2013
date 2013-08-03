@@ -5,7 +5,7 @@ package argon
 import (
 	"log"
 
-	gl "github.com/chsc/gogl/gl33"
+	gl "github.com/chsc/gogl/gl43"
 )
 
 func init() {

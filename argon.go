@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"os"
 
-	gl "github.com/chsc/gogl/gl33"
+	gl "github.com/chsc/gogl/gl43"
 	glfw "github.com/go-gl/glfw3"
 )
 

@@ -9,7 +9,7 @@ import(
 	"os"
 	"path/filepath"
 
-	gl "github.com/chsc/gogl/gl33"
+	gl "github.com/chsc/gogl/gl43"
 )
 
 type Shader struct {

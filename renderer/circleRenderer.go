@@ -5,7 +5,7 @@ import (
 	"log"
 	"unsafe"
 
-	gl "github.com/chsc/gogl/gl33"
+	gl "github.com/chsc/gogl/gl43"
 
 	"bitbucket.org/jdnewman/argon"
 )
