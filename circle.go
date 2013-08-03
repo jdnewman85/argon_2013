@@ -12,7 +12,7 @@ func init() {
 	log.Println("circle.go here")
 }
 
-var DefaultCircle Circle = Circle{0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+var DefaultCircle Circle = Circle{0.0, 0.0, 20.0, 1.0, 1.0, 1.0, 1.0}
 
 type Circle struct {
 	X, Y gl.Float
