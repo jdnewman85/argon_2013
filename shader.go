@@ -11,83 +11,106 @@ import (
 	gl "github.com/chsc/gogl/gl43"
 )
 
-type Shader struct {
-	Program gl.Uint
-}
-
 func init() {
 	log.Println("shader.go here")
 }
 
-func Create() *Shader {
-	temp := new(Shader)
+const VertexShader = gl.VERTEX_SHADER
+const GeometryShader = gl.GEOMETRY_SHADER
+const FragmentShader = gl.FRAGMENT_SHADER
 
-	temp.Program = gl.CreateProgram()
+type Shader gl.Uint
+type Program gl.Uint
 
-	return temp
+
+func CreateShader(shaderType gl.Enum) Shader {
+	return Shader(gl.CreateShader(shaderType))
 }
 
-func CreateShaderFromFiles(fileNames []string) (*Shader, error) {
+func CreateProgram() Program {
+	return Program(gl.CreateProgram())
+}
+
+func (this Shader) Source(source string) {
+	glSource := gl.GLString(source)
+	defer gl.GLStringFree(glSource)
+	gl.ShaderSource(gl.Uint(this), 1, &glSource, nil)
+}
+
+func (this Shader) Compile() {
+	gl.CompileShader(gl.Uint(this))
+
+	//Compile check
+	var status gl.Int
+	if gl.GetShaderiv(gl.Uint(this), gl.COMPILE_STATUS, &status); status != gl.TRUE {
+		//Failed
+		fmt.Fprintf(os.Stderr, "shader: %s\n", this.ShaderInfoLog())
+		//TODO err return
+	}
+}
+
+func (this Shader) Delete() {
+	gl.DeleteShader(gl.Uint(this))
+	//TODO Should I null this?
+}
+
+func (this Program) Attach(shader Shader) {
+	gl.AttachShader(gl.Uint(this), gl.Uint(shader))
+}
+
+func (this Program) Link() {
+	gl.LinkProgram(gl.Uint(this))
+}
+
+func (this Program) Use() {
+	gl.UseProgram(gl.Uint(this))
+}
+
+func CreateProgramFromFiles(fileNames []string) (Program, error) {
 	//TODO Make these errors more descriptive maybe?
-	program := gl.CreateProgram()
+	program := CreateProgram()
 
 	for _, fileName := range fileNames {
 		//Check for extension
 		var shaderType gl.Enum
 		switch filepath.Ext(fileName) {
 		case ".vert":
-			shaderType = gl.VERTEX_SHADER
+			shaderType = VertexShader
 		case ".geom":
-			shaderType = gl.GEOMETRY_SHADER
+			shaderType = GeometryShader
 		case ".frag":
-			shaderType = gl.FRAGMENT_SHADER
+			shaderType = FragmentShader
 		default:
 			fmt.Fprintf(os.Stderr, "shader: Unsupported Extension: %s\n", fileName)
-			return nil, errors.New("shader: Unsuported Extension\n")
+			return program, errors.New("shader: Unsuported Extension\n") //TODO Delete Program?
 		}
 		if source, err := ioutil.ReadFile(fileName); err != nil {
 			fmt.Fprintf(os.Stderr, "shader: %s\n", err)
-			return nil, err
+			return program, err //TODO Delete Progam?
 		} else {
-			glSource := gl.GLString(string(source))
-			defer gl.GLStringFree(glSource)
-			shader := gl.CreateShader(shaderType)
-			gl.ShaderSource(shader, 1, &glSource, nil)
-			gl.CompileShader(shader)
-			defer gl.DeleteShader(shader)
-			//Compile check
-			var status gl.Int
-			if gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status); status != gl.TRUE {
-				//Failed
-				fmt.Fprintf(os.Stderr, "shader: %s\n", shaderInfoLog(shader))
-			}
-			gl.AttachShader(program, shader)
+			shader := CreateShader(shaderType)
+			shader.Source(string(source))
+			shader.Compile() //TODO Check err
+			defer shader.Delete()
+			program.Attach(shader)
 		}
 	}
 
-	shader := &Shader{program}
-	shader.Link()
+	program.Link()
 
-	return shader, nil
+	return program, nil
 }
 
-func (this *Shader) Link() {
-	gl.LinkProgram(this.Program)
-}
 
-func (this *Shader) Use() {
-	gl.UseProgram(this.Program)
-}
-
-func shaderInfoLog(shader gl.Uint) (rString string) {
+func (this Shader) ShaderInfoLog() (rString string) {
 	var infoLogLength gl.Int
 	var charsWritten gl.Sizei
 
-	gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &infoLogLength)
+	gl.GetShaderiv(gl.Uint(this), gl.INFO_LOG_LENGTH, &infoLogLength)
 
 	if infoLogLength > 0 {
 		infoLog := gl.GLStringAlloc(gl.Sizei(infoLogLength))
-		gl.GetShaderInfoLog(shader, gl.Sizei(infoLogLength), &charsWritten, infoLog)
+		gl.GetShaderInfoLog(gl.Uint(this), gl.Sizei(infoLogLength), &charsWritten, infoLog)
 		rString = gl.GoString(infoLog)
 		gl.GLStringFree(infoLog)
 

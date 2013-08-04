@@ -32,3 +32,5 @@ May make it so that most functions just return errors instead of printing themse
 Classes should not know about files/networking/etc... they see streams, and possibly a resource manager class may open files and such and pass the stream to the object being created/loading/whatever
 
 GLaM or azul3d for 3d math lib?
+
+Error checking on all gl functions needs to be evaluated

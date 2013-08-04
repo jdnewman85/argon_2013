@@ -40,7 +40,7 @@ type RendererBase struct {
 	vao      gl.Uint
 	vbo	VertexBuffer
 	attributes    []Attribute
-	defaultShader *Shader
+	defaultProgram Program
 }
 
 func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) *RendererBase {
@@ -65,18 +65,20 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
 
-	//Shader
-	temp.defaultShader, _ = CreateShaderFromFiles(defaultShaderPaths)
+	//Shader Program
+	temp.defaultProgram, _ = CreateProgramFromFiles(defaultShaderPaths)
 	//TODO ERROR on err here!
 
-	temp.defaultShader.Use()
+	temp.defaultProgram.Use()
 	//-Uniforms //TODO Remove/Move/Change
-	inOrthoLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inOrtho"))
+	glUniformName := gl.GLString("inOrtho")
+	defer gl.GLStringFree(glUniformName)
+	inOrthoLoc := gl.GetUniformLocation(gl.Uint(temp.defaultProgram), glUniformName)
 	orthoMat := MakeOrtho(Width, Height)
 	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoMat[0])
 
 	//--Textures //TODO Remove/Move/Change
-	texLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inTexture"))
+	texLoc := gl.GetUniformLocation(gl.Uint(temp.defaultProgram), gl.GLString("inTexture"))
 	gl.Uniform1i(texLoc, 0)
 
 	//TODO Error Handling/Reporting
@@ -84,11 +86,11 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 	return temp
 }
 
-func (this *RendererBase) Render(elements RenderData, aShader *Shader) {
+func (this *RendererBase) Render(elements RenderData, program Program) {
 
 	//TODO Avoid unnessessary rebinds
 	//Binds
-	aShader.Use()
+	program.Use()
 	gl.BindVertexArray(this.vao)
 	gl.BindBuffer(gl.ARRAY_BUFFER, this.vbo.bo)
 
@@ -108,7 +110,7 @@ func (this *RendererBase) Render(elements RenderData, aShader *Shader) {
 func (this *RendererBase) RenderBuffer(buffer gl.Uint) {
 	//TODO Avoid unnessessary rebinds
 	//Binds
-	this.defaultShader.Use()
+	this.defaultProgram.Use()
 	var tempVAO gl.Uint
 	gl.GenVertexArrays(1, &tempVAO)
 	gl.BindVertexArray(tempVAO)
@@ -164,12 +166,12 @@ func (this *RendererBase) Draw(entity interface{}) {
 		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
 	}
 	renderData := RenderData{gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities)}
-	this.Render(renderData, this.defaultShader)
+	this.Render(renderData, this.defaultProgram)
 }
 
 //TEMP?
-func (this *RendererBase) DefaultShader() *Shader {
-	return this.defaultShader
+func (this *RendererBase) DefaultProgram() Program {
+	return this.defaultProgram
 }
 func (this *RendererBase) Vao() gl.Uint {
 	return this.vao
