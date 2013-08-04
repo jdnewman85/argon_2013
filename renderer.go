@@ -1,14 +1,10 @@
+package argon
 
-package renderer
-
-import(
+import (
 	"log"
 	"reflect"
 
 	gl "github.com/chsc/gogl/gl43"
-
-	"bitbucket.org/jdnewman/argon"
-	"bitbucket.org/jdnewman/argon/shader"
 )
 
 func init() {
@@ -16,34 +12,29 @@ func init() {
 }
 
 type Attribute struct {
-	Index gl.Uint
-	Size gl.Int
-	Kind gl.Enum
+	Index      gl.Uint
+	Size       gl.Int
+	Kind       gl.Enum
 	Normalized gl.Boolean
-	Stride gl.Sizei
-	Offset gl.Pointer
+	Stride     gl.Sizei
+	Offset     gl.Pointer
 }
 
 type RenderData struct {
-	ArrayData gl.Pointer
-	ArraySize gl.Sizeiptr
+	ArrayData  gl.Pointer
+	ArraySize  gl.Sizeiptr
 	ElementNum gl.Sizei
 }
 
 type RendererBase struct {
-	vao, vbo gl.Uint
-	attributes []Attribute
-	defaultShader *shader.Shader
-}
-
-type Renderer interface {
-	Render(elements RenderData, aShader *shader.Shader)
+	vao, vbo      gl.Uint
+	attributes    []Attribute
+	defaultShader *Shader
 }
 
 func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) *RendererBase {
 	temp := new(RendererBase)
 	temp.attributes = renderAttributes
-
 
 	//Setup VAO and VBO
 	gl.GenVertexArrays(1, &temp.vao)
@@ -54,7 +45,7 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 	gl.BindBuffer(gl.ARRAY_BUFFER, temp.vbo)
 
 	//-Attributes
-	for _,t := range renderAttributes {
+	for _, t := range renderAttributes {
 		gl.VertexAttribPointer(t.Index, t.Size, t.Kind, t.Normalized, t.Stride, t.Offset)
 		gl.EnableVertexAttribArray(t.Index)
 	}
@@ -63,15 +54,14 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
 
-
 	//Shader
-	temp.defaultShader, _ = shader.CreateFromFiles(defaultShaderPaths)
+	temp.defaultShader, _ = CreateShaderFromFiles(defaultShaderPaths)
 	//TODO ERROR on err here!
 
 	temp.defaultShader.Use()
 	//-Uniforms //TODO Remove/Move/Change
 	inOrthoLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inOrtho"))
-	orthoVec := shader.MakeOrtho(argon.Width, argon.Height)
+	orthoVec := MakeOrtho(Width, Height)
 	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoVec[0])
 
 	//--Textures //TODO Remove/Move/Change
@@ -80,11 +70,10 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 
 	//TODO Error Handling/Reporting
 
-
 	return temp
 }
 
-func (this *RendererBase) Render(elements RenderData, aShader *shader.Shader) {
+func (this *RendererBase) Render(elements RenderData, aShader *Shader) {
 
 	//TODO Avoid unnessessary rebinds
 	//Binds
@@ -104,6 +93,34 @@ func (this *RendererBase) Render(elements RenderData, aShader *shader.Shader) {
 	gl.UseProgram(0)
 }
 
+//TEMP?
+func (this *RendererBase) RenderBuffer(buffer gl.Uint) {
+	//TODO Avoid unnessessary rebinds
+	//Binds
+	this.defaultShader.Use()
+	var tempVAO gl.Uint
+	gl.GenVertexArrays(1, &tempVAO)
+	gl.BindVertexArray(tempVAO)
+	gl.BindBuffer(gl.ARRAY_BUFFER, buffer)
+
+	//Update Buffer
+	//	gl.BufferData(gl.ARRAY_BUFFER, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)
+
+	//-Attributes
+	for _, t := range this.attributes {
+		gl.VertexAttribPointer(t.Index, t.Size, t.Kind, t.Normalized, t.Stride, t.Offset)
+		gl.EnableVertexAttribArray(t.Index)
+	}
+
+	//Draw
+	gl.DrawArrays(gl.POINTS, 0, 512*512)
+
+	//TODO Defer?
+	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+	gl.BindVertexArray(0)
+	gl.UseProgram(0)
+}
+
 func (this *RendererBase) Draw(entity interface{}) {
 	//TODO: Cleanup this a bit
 	var numEntities int = 1
@@ -114,7 +131,7 @@ func (this *RendererBase) Draw(entity interface{}) {
 	case reflect.Slice:
 		entityPointer = reflect.ValueOf(entity).Pointer()
 		numEntities = reflect.ValueOf(entity).Len()
-		entitySize = reflect.TypeOf(entity).Elem().Size()*uintptr(numEntities)
+		entitySize = reflect.TypeOf(entity).Elem().Size() * uintptr(numEntities)
 	case reflect.Array:
 		numEntities = reflect.ValueOf(entity).Len()
 		tempSlice := reflect.MakeSlice(reflect.SliceOf(reflect.ValueOf(entity).Index(0).Type()), 0, numEntities)
@@ -122,21 +139,29 @@ func (this *RendererBase) Draw(entity interface{}) {
 			tempSlice = reflect.Append(tempSlice, reflect.ValueOf(entity).Index(i))
 		}
 		entityPointer = tempSlice.Pointer()
-		entitySize = reflect.TypeOf(entity).Elem().Size()*uintptr(numEntities)
+		entitySize = reflect.TypeOf(entity).Elem().Size() * uintptr(numEntities)
 	case reflect.Ptr:
 		entityPointer = reflect.ValueOf(entity).Pointer()
-		entitySize = reflect.TypeOf(entity).Elem().Size()*uintptr(numEntities)
+		entitySize = reflect.TypeOf(entity).Elem().Size() * uintptr(numEntities)
 	case reflect.Struct:
 		tempSlice := reflect.MakeSlice(reflect.SliceOf(reflect.ValueOf(entity).Type()), 0, numEntities)
 		tempSlice = reflect.Append(tempSlice, reflect.ValueOf(entity))
 		entityPointer = tempSlice.Pointer()
-		entitySize = reflect.TypeOf(entity).Size()*uintptr(numEntities)
+		entitySize = reflect.TypeOf(entity).Size() * uintptr(numEntities)
 	default:
 		//TODO Better error stuffs
 		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
 	}
 	renderData := RenderData{gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities)}
 	this.Render(renderData, this.defaultShader)
+}
+
+//TEMP?
+func (this *RendererBase) DefaultShader() *Shader {
+	return this.defaultShader
+}
+func (this *RendererBase) Vao() gl.Uint {
+	return this.vao
 }
 
 //TODO Assert on dataSizes and such not matching multiples of stored correct value?

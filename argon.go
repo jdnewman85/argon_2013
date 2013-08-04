@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"reflect"
 	"os"
+	"reflect"
 
 	gl "github.com/chsc/gogl/gl43"
 	glfw "github.com/go-gl/glfw3"
@@ -15,15 +15,15 @@ import (
 
 type Graphics struct {
 	width, height int
-	window *glfw.Window
-	drawMap map[reflect.Type] Renderer
+	window        *glfw.Window
+	drawMap       map[reflect.Type]Renderer
 }
 
 type Renderer interface {
 	Draw(interface{})
 }
 
-var(
+var (
 	//TODO TEMP Remove when ortho uniform becomes external to renderer
 	Width, Height int
 )
@@ -61,7 +61,7 @@ func NewGraphics(width, height int, fullscreen bool) (*Graphics, error) {
 	//Fullscreen param
 	var monitor *glfw.Monitor = nil
 	var err error
-	if  fullscreen {
+	if fullscreen {
 		if monitor, err = glfw.GetPrimaryMonitor(); err != nil {
 			fmt.Fprintf(os.Stderr, "glfw: %s\n", err)
 			return nil, err
@@ -93,8 +93,8 @@ func NewGraphics(width, height int, fullscreen bool) (*Graphics, error) {
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 	//-log version
-//	glMajor, glMinor, glRev := glfw.GLVersion()
-//	log.Printf("%d %d %d", glMajor, glMinor, glRev)
+	//	glMajor, glMinor, glRev := glfw.GLVersion()
+	//	log.Printf("%d %d %d", glMajor, glMinor, glRev)
 	log.Println(gl.GoStringUb(gl.GetString(gl.VERSION)))
 
 	//TODO TEMP Remove when ortho uniform becomes external to renderer
@@ -144,4 +144,3 @@ func (this *Graphics) Height() int {
 func glfwErrorCallback(err glfw.ErrorCode, desc string) {
 	fmt.Printf("%v: %v\n", err, desc)
 }
-

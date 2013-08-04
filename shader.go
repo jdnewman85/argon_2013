@@ -1,7 +1,6 @@
+package argon
 
-package shader
-
-import(
+import (
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -28,7 +27,7 @@ func Create() *Shader {
 	return temp
 }
 
-func CreateFromFiles(fileNames []string) (*Shader, error) {
+func CreateShaderFromFiles(fileNames []string) (*Shader, error) {
 	//TODO Make these errors more destriptive maybe?
 	program := gl.CreateProgram()
 
@@ -36,19 +35,19 @@ func CreateFromFiles(fileNames []string) (*Shader, error) {
 		//Check for extension
 		var shaderType gl.Enum
 		switch filepath.Ext(fileName) {
-			case ".vert":
-				shaderType = gl.VERTEX_SHADER
-			case ".geom":
-				shaderType = gl.GEOMETRY_SHADER
-			case ".frag":
-				shaderType = gl.FRAGMENT_SHADER
-			default:
-				fmt.Fprintf(os.Stderr, "shader: Unsupported Extension: %s\n", fileName)
-				return nil, errors.New("shader: Unsuported Extension\n")
+		case ".vert":
+			shaderType = gl.VERTEX_SHADER
+		case ".geom":
+			shaderType = gl.GEOMETRY_SHADER
+		case ".frag":
+			shaderType = gl.FRAGMENT_SHADER
+		default:
+			fmt.Fprintf(os.Stderr, "shader: Unsupported Extension: %s\n", fileName)
+			return nil, errors.New("shader: Unsuported Extension\n")
 		}
 		if source, err := ioutil.ReadFile(fileName); err != nil {
 			fmt.Fprintf(os.Stderr, "shader: %s\n", err)
-			return nil,err
+			return nil, err
 		} else {
 			glSource := gl.GLString(string(source))
 			shader := gl.CreateShader(shaderType)
@@ -99,7 +98,7 @@ func shaderInfoLog(shader gl.Uint) (rString string) {
 
 //TODO REM
 func MakeOrtho(width, height int) [16]gl.Float {
-	return [16]gl.Float {
+	return [16]gl.Float{
 		2.0 / gl.Float(width), 0.0, 0.0, 0.0,
 		0.0, 2.0 / gl.Float(height), 0.0, 0.0,
 		0.0, 0.0, -1.0, 0.0,

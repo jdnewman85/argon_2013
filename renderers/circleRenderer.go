@@ -1,5 +1,4 @@
-
-package renderer
+package renderers
 
 import (
 	"log"
@@ -15,37 +14,37 @@ func init() {
 }
 
 type CircleRenderer struct {
-	*RendererBase
+	*argon.RendererBase
 }
 
 func NewCircleRenderer() *CircleRenderer {
 	//Load Default Shaders
 	sources := []string{"./shaders/circle.vert", "./shaders/circle.geom", "./shaders/circle.frag"}
-	rendererBase := NewRendererBase(CircleRenderAttributes(), sources)
+	rendererBase := argon.NewRendererBase(CircleRenderAttributes(), sources)
 
 	return &CircleRenderer{rendererBase}
 }
 
-func CircleRenderAttributes() []Attribute {
+func CircleRenderAttributes() []argon.Attribute {
 	//TODO Compiler error if these intermediate offset values are used directly
 	xOffset := gl.Pointer(unsafe.Offsetof(argon.DefaultCircle.X))
 	rOffset := gl.Pointer(unsafe.Offsetof(argon.DefaultCircle.R))
 	redOffset := gl.Pointer(unsafe.Offsetof(argon.DefaultCircle.Red))
 	sizeOfElement := gl.Sizei(unsafe.Sizeof(argon.DefaultCircle))
-	tempAttributes := []Attribute{
-		Attribute{0, 2, gl.FLOAT, gl.FALSE, sizeOfElement, xOffset},
-		Attribute{1, 1, gl.FLOAT, gl.FALSE, sizeOfElement, rOffset},
-		Attribute{2, 4, gl.FLOAT, gl.FALSE, sizeOfElement, redOffset},
+	tempAttributes := []argon.Attribute{
+		argon.Attribute{0, 2, gl.FLOAT, gl.FALSE, sizeOfElement, xOffset},
+		argon.Attribute{1, 1, gl.FLOAT, gl.FALSE, sizeOfElement, rOffset},
+		argon.Attribute{2, 4, gl.FLOAT, gl.FALSE, sizeOfElement, redOffset},
 	}
 
 	return tempAttributes
 }
 
 //func (this *CircleRenderer) Draw(circle interface{}) {
-	//c := circle.(*argon.Circle)
-	//If the renderer needed custom renderData, it could use it here
-	//renderData := RenderData{gl.Pointer(c), gl.Sizeiptr(unsafe.Sizeof(argon.DefaultCircle)), 1}
-	//this.Render(renderData, this.defaultShader)
+//c := circle.(*argon.Circle)
+//If the renderer needed custom renderData, it could use it here
+//renderData := RenderData{gl.Pointer(c), gl.Sizeiptr(unsafe.Sizeof(argon.DefaultCircle)), 1}
+//this.Render(renderData, this.defaultShader)
 //	this.RendererBase.Draw(circle)
 //}
 

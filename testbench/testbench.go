@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"bitbucket.org/jdnewman/argon"
-	"bitbucket.org/jdnewman/argon/renderer"
+	"bitbucket.org/jdnewman/argon/renderers"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	defer myGraphics.Destroy()
 
 	//Circles
-	circleRenderer := renderer.NewCircleRenderer()
+	circleRenderer := renderers.NewCircleRenderer()
 	myCircles := make([]argon.Circle, 5)
 	myGraphics.RegisterRenderer(myCircles, circleRenderer)
 
@@ -54,7 +54,7 @@ func main() {
 	myCircles[4] = argon.DefaultCircle
 
 	//Lines
-	lineRenderer := renderer.NewLineRenderer()
+	lineRenderer := renderers.NewLineRenderer()
 	myLines := make([]argon.Line, 5)
 	myGraphics.RegisterRenderer(myLines, lineRenderer)
 
@@ -107,4 +107,3 @@ func main() {
 	}
 
 }
-

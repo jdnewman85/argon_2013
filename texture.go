@@ -13,8 +13,6 @@ func init() {
 }
 
 type Texture struct {
-	texture gl.Uint
+	texture       gl.Uint
 	Width, Height gl.Int
 }
-
-

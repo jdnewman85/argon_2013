@@ -15,8 +15,7 @@ func init() {
 var DefaultCircle Circle = Circle{0.0, 0.0, 20.0, 1.0, 1.0, 1.0, 1.0}
 
 type Circle struct {
-	X, Y gl.Float
-	R gl.Float
+	X, Y                    gl.Float
+	R                       gl.Float
 	Red, Green, Blue, Alpha gl.Float
 }
-
