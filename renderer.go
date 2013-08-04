@@ -61,8 +61,8 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 	temp.defaultShader.Use()
 	//-Uniforms //TODO Remove/Move/Change
 	inOrthoLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inOrtho"))
-	orthoVec := MakeOrtho(Width, Height)
-	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoVec[0])
+	orthoMat := MakeOrtho(Width, Height)
+	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoMat[0])
 
 	//--Textures //TODO Remove/Move/Change
 	texLoc := gl.GetUniformLocation(temp.defaultShader.Program, gl.GLString("inTexture"))
