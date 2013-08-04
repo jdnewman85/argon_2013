@@ -28,7 +28,7 @@ func Create() *Shader {
 }
 
 func CreateShaderFromFiles(fileNames []string) (*Shader, error) {
-	//TODO Make these errors more destriptive maybe?
+	//TODO Make these errors more descriptive maybe?
 	program := gl.CreateProgram()
 
 	for _, fileName := range fileNames {
@@ -50,9 +50,11 @@ func CreateShaderFromFiles(fileNames []string) (*Shader, error) {
 			return nil, err
 		} else {
 			glSource := gl.GLString(string(source))
+			defer gl.GLStringFree(glSource)
 			shader := gl.CreateShader(shaderType)
 			gl.ShaderSource(shader, 1, &glSource, nil)
 			gl.CompileShader(shader)
+			defer gl.DeleteShader(shader)
 			//Compile check
 			var status gl.Int
 			if gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status); status != gl.TRUE {
