@@ -16,8 +16,18 @@ type Attribute struct {
 	Size       gl.Int
 	Kind       gl.Enum
 	Normalized gl.Boolean
-	Stride     gl.Sizei
+	Stride		gl.Sizei
 	Offset     gl.Pointer
+}
+
+type Buffer struct {
+	bo gl.Uint //Actual gl buffer object
+}
+
+type VertexBuffer struct {
+	Buffer
+	Offset gl.Intptr
+	Stride gl.Intptr
 }
 
 type RenderData struct {
@@ -27,7 +37,8 @@ type RenderData struct {
 }
 
 type RendererBase struct {
-	vao, vbo      gl.Uint
+	vao      gl.Uint
+	vbo	VertexBuffer
 	attributes    []Attribute
 	defaultShader *Shader
 }
@@ -38,11 +49,11 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 
 	//Setup VAO and VBO
 	gl.GenVertexArrays(1, &temp.vao)
-	gl.GenBuffers(1, &temp.vbo)
+	gl.GenBuffers(1, &temp.vbo.bo)
 
 	//-Bind
 	gl.BindVertexArray(temp.vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, temp.vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, temp.vbo.bo)
 
 	//-Attributes
 	for _, t := range renderAttributes {
@@ -79,7 +90,7 @@ func (this *RendererBase) Render(elements RenderData, aShader *Shader) {
 	//Binds
 	aShader.Use()
 	gl.BindVertexArray(this.vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, this.vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, this.vbo.bo)
 
 	//Update Buffer
 	gl.BufferData(gl.ARRAY_BUFFER, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)
