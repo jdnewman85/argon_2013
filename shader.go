@@ -121,11 +121,3 @@ func (this Shader) ShaderInfoLog() (rString string) {
 	return "No Log"
 }
 
-//TODO REM
-func MakeOrtho(width, height int) [16]gl.Float {
-	return [16]gl.Float{
-		2.0 / gl.Float(width), 0.0, 0.0, 0.0,
-		0.0, 2.0 / gl.Float(height), 0.0, 0.0,
-		0.0, 0.0, -1.0, 0.0,
-		-1.0, -1.0, 0.0, 1.0}
-}
