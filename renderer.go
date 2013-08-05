@@ -12,40 +12,40 @@ func init() {
 }
 
 type Renderer struct {
-	vao     Vao
-	vbo     VertexBuffer
-	program Program
+	Vao
+	Vbo     VertexBuffer
+	Program
 }
 
 func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, vbOffset gl.Intptr, vbStride gl.Sizei) *Renderer {
 	temp := new(Renderer)
 
 	//Setup VAO and VBO
-	temp.vao = GenVao()
-	temp.vbo = VertexBuffer{GenBuffer(), vbOffset, vbStride}
+	temp.Vao = GenVao()
+	temp.Vbo = VertexBuffer{GenBuffer(), vbOffset, vbStride}
 
 	//-Bind
-	temp.vao.Bind()
-	defer temp.vao.UnBind()
-	temp.vbo.Bind()
+	temp.Vao.Bind()
+	defer temp.Vao.UnBind()
+	temp.Vbo.Bind()
 
 	//-Attributes
-	temp.vao.SetAttributes(renderAttributes)
+	temp.Vao.SetAttributes(renderAttributes)
 
 	//Shader Program
-	temp.program, _ = CreateProgramFromFiles(defaultShaderPaths)
+	temp.Program, _ = CreateProgramFromFiles(defaultShaderPaths)
 	//TODO ERROR on err here!
 
-	temp.program.Use()
+	temp.Program.Use()
 	//-Uniforms //TODO Remove/Move/Change
 	glUniformName := gl.GLString("inOrtho")
 	defer gl.GLStringFree(glUniformName)
-	inOrthoLoc := gl.GetUniformLocation(gl.Uint(temp.program), glUniformName)
+	inOrthoLoc := gl.GetUniformLocation(gl.Uint(temp.Program), glUniformName)
 	orthoMat := MakeOrtho(Width, Height)
 	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoMat[0])
 
 	//--Textures //TODO Remove/Move/Change
-	texLoc := gl.GetUniformLocation(gl.Uint(temp.program), gl.GLString("inTexture"))
+	texLoc := gl.GetUniformLocation(gl.Uint(temp.Program), gl.GLString("inTexture"))
 	gl.Uniform1i(texLoc, 0)
 
 	//TODO Error Handling/Reporting
@@ -55,13 +55,13 @@ func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, v
 
 //----------------------------------------------------------------------------------This should take a buffer, and managing that buffer should be seperate?
 func (this *Renderer) Render(data gl.Pointer, size gl.Sizeiptr, num gl.Sizei) {
-	this.program.Use()
-	defer this.program.Forgo()
-	this.vao.Bind()
-	defer this.vao.UnBind()
+	this.Program.Use()
+	defer this.Program.Forgo()
+	this.Vao.Bind()
+	defer this.Vao.UnBind()
 
 	//Update Buffer
-	this.vbo.Data(ArrayBuffer, size, data, gl.DYNAMIC_DRAW)
+	this.Vbo.Data(ArrayBuffer, size, data, gl.DYNAMIC_DRAW)
 
 	//Draw
 	gl.DrawArrays(gl.POINTS, 0, num)
@@ -73,11 +73,13 @@ func (this *Renderer) Draw(entity interface{}) {
 	var entitySize uintptr = 0
 	var entityPointer uintptr
 	interfaceType := reflect.TypeOf(entity).Kind()
+
 	switch interfaceType {
 	case reflect.Slice:
 		entityPointer = reflect.ValueOf(entity).Pointer()
 		numEntities = reflect.ValueOf(entity).Len()
 		entitySize = reflect.TypeOf(entity).Elem().Size() * uintptr(numEntities)
+
 	case reflect.Array:
 		numEntities = reflect.ValueOf(entity).Len()
 		tempSlice := reflect.MakeSlice(reflect.SliceOf(reflect.ValueOf(entity).Index(0).Type()), 0, numEntities)
@@ -86,39 +88,37 @@ func (this *Renderer) Draw(entity interface{}) {
 		}
 		entityPointer = tempSlice.Pointer()
 		entitySize = reflect.TypeOf(entity).Elem().Size() * uintptr(numEntities)
+
 	case reflect.Ptr:
 		entityPointer = reflect.ValueOf(entity).Pointer()
 		entitySize = reflect.TypeOf(entity).Elem().Size() * uintptr(numEntities)
+
 	case reflect.Struct:
 		tempSlice := reflect.MakeSlice(reflect.SliceOf(reflect.ValueOf(entity).Type()), 0, numEntities)
 		tempSlice = reflect.Append(tempSlice, reflect.ValueOf(entity))
 		entityPointer = tempSlice.Pointer()
 		entitySize = reflect.TypeOf(entity).Size() * uintptr(numEntities)
+
 	default:
 		//TODO Better error stuffs
 		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
 	}
 	//	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities))
 
-	//Use/Bind
-	this.program.Use()
-	defer this.program.Forgo()
-	this.vao.Bind()
-	defer this.vao.UnBind()
-
 	//Update Buffer
-	this.vbo.Data(ArrayBuffer, gl.Sizeiptr(entitySize), gl.Pointer(entityPointer), gl.DYNAMIC_DRAW)
+	this.Vbo.Data(ArrayBuffer, gl.Sizeiptr(entitySize), gl.Pointer(entityPointer), gl.DYNAMIC_DRAW)
 
 	//Draw
-	gl.DrawArrays(gl.POINTS, 0, gl.Sizei(numEntities))
+	Draw(this.Vao, this.Program, gl.Sizei(numEntities))
 }
 
-//TEMP?
-func (this *Renderer) Program() Program {
-	return this.program
-}
-func (this *Renderer) Vao() gl.Uint {
-	return gl.Uint(this.vao)
+func Draw(vao Vao, program Program, num gl.Sizei) {
+	program.Use()
+	defer program.Forgo()
+	vao.Bind()
+	defer vao.UnBind()
+
+	gl.DrawArrays(gl.POINTS, 0, num)
 }
 
 //TODO Assert on dataSizes and such not matching multiples of stored correct value?
