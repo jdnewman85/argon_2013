@@ -11,21 +11,6 @@ func init() {
 	log.Println("renderer.go here")
 }
 
-type Attribute struct {
-	Index      gl.Uint
-	Size       gl.Int
-	Kind       gl.Enum
-	Normalized gl.Boolean
-	Stride		gl.Sizei
-	Offset     gl.Pointer
-}
-
-type VertexBuffer struct {
-	Buffer
-	Offset gl.Intptr
-	Stride gl.Intptr
-}
-
 type RenderData struct {
 	ArrayData  gl.Pointer
 	ArraySize  gl.Sizeiptr
@@ -34,32 +19,28 @@ type RenderData struct {
 
 type Renderer struct {
 	vao    Vao
-	vbo Buffer
+	vbo VertexBuffer
 	attributes    []Attribute
 	defaultProgram Program
 }
 
 //------------------------------------------------------------------------------------------The majority of this is VAO/Attribute setup, which should be seperated, switched to new system
 //------------------------------------------------------------------------------------------The remainder can maybe be summed up in a renderable interface or something?
-func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string) *Renderer {
+func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, vbOffset gl.Intptr, vbStride gl.Sizei) *Renderer {
 	temp := new(Renderer)
 	temp.attributes = renderAttributes
 
 	//Setup VAO and VBO
 	temp.vao = GenVao()
-	temp.vbo = GenBuffer()
+	temp.vbo = VertexBuffer{GenBuffer(), vbOffset, vbStride}
 
 	//-Bind
 	temp.vao.Bind()
 	defer temp.vao.UnBind()
-	temp.vbo.Bind(ArrayBuffer)
-	defer temp.vbo.UnBind(ArrayBuffer)
+	temp.vbo.Bind()
 
 	//-Attributes
-	for _, t := range renderAttributes {
-		gl.VertexAttribPointer(t.Index, t.Size, t.Kind, t.Normalized, t.Stride, t.Offset)
-		gl.EnableVertexAttribArray(t.Index)
-	}
+	temp.vao.SetAttributes(renderAttributes)
 
 	//Shader Program
 	temp.defaultProgram, _ = CreateProgramFromFiles(defaultShaderPaths)
@@ -91,8 +72,8 @@ func (this *Renderer) Render(elements RenderData, program Program) {
 	defer program.Forgo()
 	this.vao.Bind()
 	defer this.vao.UnBind()
-	this.vbo.Bind(ArrayBuffer)
-	defer this.vbo.UnBind(ArrayBuffer)
+	this.vbo.BindBuffer(ArrayBuffer)
+	defer this.vbo.UnBindBuffer(ArrayBuffer)
 
 	//Update Buffer
 	this.vbo.Data(ArrayBuffer, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)
@@ -103,21 +84,17 @@ func (this *Renderer) Render(elements RenderData, program Program) {
 
 //TEMP?
 func (this *Renderer) RenderBuffer(buffer Buffer) {
-	//TODO Avoid unnessessary rebinds
-	//Binds
+	//Shader
 	this.defaultProgram.Use()
 	defer this.defaultProgram.Forgo()
 	tempVAO := GenVao()
+
+	//Bind vao
 	tempVAO.Bind()
 	defer tempVAO.UnBind()
-	buffer.Bind(ArrayBuffer)
-	defer buffer.UnBind(ArrayBuffer)
 
-	//-Attributes
-	for _, t := range this.attributes {
-		gl.VertexAttribPointer(t.Index, t.Size, t.Kind, t.Normalized, t.Stride, t.Offset)
-		gl.EnableVertexAttribArray(t.Index)
-	}
+	//Attributes
+	tempVAO.SetAttributes(this.attributes)
 
 	//Draw
 	gl.DrawArrays(gl.POINTS, 0, 512*512)
