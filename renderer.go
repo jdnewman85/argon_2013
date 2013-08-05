@@ -72,8 +72,6 @@ func (this *Renderer) Render(elements RenderData, program Program) {
 	defer program.Forgo()
 	this.vao.Bind()
 	defer this.vao.UnBind()
-	this.vbo.BindBuffer(ArrayBuffer)
-	defer this.vbo.UnBindBuffer(ArrayBuffer)
 
 	//Update Buffer
 	this.vbo.Data(ArrayBuffer, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)

@@ -57,14 +57,6 @@ func (this Buffer) Bind(target gl.Enum) {
 	gl.BindBuffer(target, gl.Uint(this))
 }
 
-func (this VertexBuffer) BindBuffer(target gl.Enum) {
-	this.Buffer.Bind(target)
-}
-
-func (this VertexBuffer) UnBindBuffer(target gl.Enum) {
-	this.Buffer.UnBind(target)
-}
-
 func (this Vao) UnBind() {
 	gl.BindVertexArray(0)
 }
@@ -79,6 +71,9 @@ func (this Buffer) UnBind(target gl.Enum) {
 //}
 
 func (this Buffer) Data(target gl.Enum, size gl.Sizeiptr, data gl.Pointer, usage gl.Enum) {
+	this.Bind(target)
+	defer this.UnBind(target)
+
 	gl.BufferData(target, size, data, usage)
 }
 
