@@ -20,7 +20,6 @@ type RenderData struct {
 type Renderer struct {
 	vao    Vao
 	vbo VertexBuffer
-	attributes    []Attribute
 	program Program
 }
 
@@ -28,7 +27,6 @@ type Renderer struct {
 //------------------------------------------------------------------------------------------The remainder can maybe be summed up in a renderable interface or something?
 func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, vbOffset gl.Intptr, vbStride gl.Sizei) *Renderer {
 	temp := new(Renderer)
-	temp.attributes = renderAttributes
 
 	//Setup VAO and VBO
 	temp.vao = GenVao()
@@ -64,7 +62,7 @@ func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, v
 }
 
 //----------------------------------------------------------------------------------This should take a buffer, and managing that buffer should be seperate?
-func (this *Renderer) Render(elements RenderData, program Program) {
+func (this *Renderer) Render(data gl.Pointer, size gl.Sizeiptr, num gl.Sizei, program Program) {
 
 	//TODO Avoid unnessessary rebinds
 	//Binds
@@ -74,10 +72,10 @@ func (this *Renderer) Render(elements RenderData, program Program) {
 	defer this.vao.UnBind()
 
 	//Update Buffer
-	this.vbo.Data(ArrayBuffer, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)
+	this.vbo.Data(ArrayBuffer, size, data, gl.DYNAMIC_DRAW)
 
 	//Draw
-	gl.DrawArrays(gl.POINTS, 0, elements.ElementNum)
+	gl.DrawArrays(gl.POINTS, 0, num)
 }
 
 func (this *Renderer) Draw(entity interface{}) {
@@ -111,8 +109,7 @@ func (this *Renderer) Draw(entity interface{}) {
 		//TODO Better error stuffs
 		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
 	}
-	renderData := RenderData{gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities)}
-	this.Render(renderData, this.program)
+	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities), this.program)
 }
 
 //TEMP?
