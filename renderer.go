@@ -11,20 +11,12 @@ func init() {
 	log.Println("renderer.go here")
 }
 
-type RenderData struct {
-	ArrayData  gl.Pointer
-	ArraySize  gl.Sizeiptr
-	ElementNum gl.Sizei
-}
-
 type Renderer struct {
 	vao    Vao
 	vbo VertexBuffer
 	program Program
 }
 
-//------------------------------------------------------------------------------------------The majority of this is VAO/Attribute setup, which should be seperated, switched to new system
-//------------------------------------------------------------------------------------------The remainder can maybe be summed up in a renderable interface or something?
 func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, vbOffset gl.Intptr, vbStride gl.Sizei) *Renderer {
 	temp := new(Renderer)
 
