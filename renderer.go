@@ -20,10 +20,6 @@ type Attribute struct {
 	Offset     gl.Pointer
 }
 
-type Buffer struct {
-	bo gl.Uint //Actual gl buffer object
-}
-
 type VertexBuffer struct {
 	Buffer
 	Offset gl.Intptr
@@ -37,33 +33,33 @@ type RenderData struct {
 }
 
 type RendererBase struct {
-	vao      gl.Uint
-	vbo	VertexBuffer
+	vao    Vao
+	vbo Buffer
 	attributes    []Attribute
 	defaultProgram Program
 }
 
+//------------------------------------------------------------------------------------------The majority of this is VAO/Attribute setup, which should be seperated, switched to new system
+//------------------------------------------------------------------------------------------The remainder can maybe be summed up in a renderable interface or something?
 func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) *RendererBase {
 	temp := new(RendererBase)
 	temp.attributes = renderAttributes
 
 	//Setup VAO and VBO
-	gl.GenVertexArrays(1, &temp.vao)
-	gl.GenBuffers(1, &temp.vbo.bo)
+	temp.vao = GenVao()
+	temp.vbo = GenBuffer()
 
 	//-Bind
-	gl.BindVertexArray(temp.vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, temp.vbo.bo)
+	temp.vao.Bind()
+	defer temp.vao.UnBind()
+	temp.vbo.Bind(ArrayBuffer)
+	defer temp.vbo.UnBind(ArrayBuffer)
 
 	//-Attributes
 	for _, t := range renderAttributes {
 		gl.VertexAttribPointer(t.Index, t.Size, t.Kind, t.Normalized, t.Stride, t.Offset)
 		gl.EnableVertexAttribArray(t.Index)
 	}
-
-	//-Unbind
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
 
 	//Shader Program
 	temp.defaultProgram, _ = CreateProgramFromFiles(defaultShaderPaths)
@@ -86,38 +82,36 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 	return temp
 }
 
+//----------------------------------------------------------------------------------This should take a buffer, and managing that buffer should be seperate?
 func (this *RendererBase) Render(elements RenderData, program Program) {
 
 	//TODO Avoid unnessessary rebinds
 	//Binds
 	program.Use()
-	gl.BindVertexArray(this.vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, this.vbo.bo)
+	defer program.Forgo()
+	this.vao.Bind()
+	defer this.vao.UnBind()
+	this.vbo.Bind(ArrayBuffer)
+	defer this.vbo.UnBind(ArrayBuffer)
 
 	//Update Buffer
-	gl.BufferData(gl.ARRAY_BUFFER, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)
+	this.vbo.Data(ArrayBuffer, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)
 
 	//Draw
 	gl.DrawArrays(gl.POINTS, 0, elements.ElementNum)
-
-	//TODO Defer?
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
-	gl.UseProgram(0)
 }
 
 //TEMP?
-func (this *RendererBase) RenderBuffer(buffer gl.Uint) {
+func (this *RendererBase) RenderBuffer(buffer Buffer) {
 	//TODO Avoid unnessessary rebinds
 	//Binds
 	this.defaultProgram.Use()
-	var tempVAO gl.Uint
-	gl.GenVertexArrays(1, &tempVAO)
-	gl.BindVertexArray(tempVAO)
-	gl.BindBuffer(gl.ARRAY_BUFFER, buffer)
-
-	//Update Buffer
-	//	gl.BufferData(gl.ARRAY_BUFFER, elements.ArraySize, elements.ArrayData, gl.DYNAMIC_DRAW)
+	defer this.defaultProgram.Forgo()
+	tempVAO := GenVao()
+	tempVAO.Bind()
+	defer tempVAO.UnBind()
+	buffer.Bind(ArrayBuffer)
+	defer buffer.UnBind(ArrayBuffer)
 
 	//-Attributes
 	for _, t := range this.attributes {
@@ -128,10 +122,6 @@ func (this *RendererBase) RenderBuffer(buffer gl.Uint) {
 	//Draw
 	gl.DrawArrays(gl.POINTS, 0, 512*512)
 
-	//TODO Defer?
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
-	gl.UseProgram(0)
 }
 
 func (this *RendererBase) Draw(entity interface{}) {
@@ -174,7 +164,7 @@ func (this *RendererBase) DefaultProgram() Program {
 	return this.defaultProgram
 }
 func (this *RendererBase) Vao() gl.Uint {
-	return this.vao
+	return gl.Uint(this.vao)
 }
 
 //TODO Assert on dataSizes and such not matching multiples of stored correct value?

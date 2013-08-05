@@ -66,6 +66,10 @@ func (this Program) Use() {
 	gl.UseProgram(gl.Uint(this))
 }
 
+func (this Program) Forgo() {
+	gl.UseProgram(0)
+}
+
 func CreateProgramFromFiles(fileNames []string) (Program, error) {
 	//TODO Make these errors more descriptive maybe?
 	program := CreateProgram()
