@@ -40,6 +40,7 @@ func (this Vao) UnBind() {
 	gl.BindVertexArray(0)
 }
 
+//TODO Would be nice to not know the target here...?
 func (this Buffer) UnBind(target gl.Enum) {
 	gl.BindBuffer(target, 0)
 }
@@ -53,3 +54,4 @@ func (this Buffer) Data(target gl.Enum, size gl.Sizeiptr, data gl.Pointer, usage
 	//TODO Bind?
 	gl.BufferData(target, size, data, usage)
 }
+

@@ -32,7 +32,7 @@ type RenderData struct {
 	ElementNum gl.Sizei
 }
 
-type RendererBase struct {
+type Renderer struct {
 	vao    Vao
 	vbo Buffer
 	attributes    []Attribute
@@ -41,8 +41,8 @@ type RendererBase struct {
 
 //------------------------------------------------------------------------------------------The majority of this is VAO/Attribute setup, which should be seperated, switched to new system
 //------------------------------------------------------------------------------------------The remainder can maybe be summed up in a renderable interface or something?
-func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) *RendererBase {
-	temp := new(RendererBase)
+func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string) *Renderer {
+	temp := new(Renderer)
 	temp.attributes = renderAttributes
 
 	//Setup VAO and VBO
@@ -83,7 +83,7 @@ func NewRendererBase(renderAttributes []Attribute, defaultShaderPaths []string) 
 }
 
 //----------------------------------------------------------------------------------This should take a buffer, and managing that buffer should be seperate?
-func (this *RendererBase) Render(elements RenderData, program Program) {
+func (this *Renderer) Render(elements RenderData, program Program) {
 
 	//TODO Avoid unnessessary rebinds
 	//Binds
@@ -102,7 +102,7 @@ func (this *RendererBase) Render(elements RenderData, program Program) {
 }
 
 //TEMP?
-func (this *RendererBase) RenderBuffer(buffer Buffer) {
+func (this *Renderer) RenderBuffer(buffer Buffer) {
 	//TODO Avoid unnessessary rebinds
 	//Binds
 	this.defaultProgram.Use()
@@ -124,7 +124,7 @@ func (this *RendererBase) RenderBuffer(buffer Buffer) {
 
 }
 
-func (this *RendererBase) Draw(entity interface{}) {
+func (this *Renderer) Draw(entity interface{}) {
 	//TODO: Cleanup this a bit
 	var numEntities int = 1
 	var entitySize uintptr = 0
@@ -160,10 +160,10 @@ func (this *RendererBase) Draw(entity interface{}) {
 }
 
 //TEMP?
-func (this *RendererBase) DefaultProgram() Program {
+func (this *Renderer) DefaultProgram() Program {
 	return this.defaultProgram
 }
-func (this *RendererBase) Vao() gl.Uint {
+func (this *Renderer) Vao() gl.Uint {
 	return gl.Uint(this.vao)
 }
 

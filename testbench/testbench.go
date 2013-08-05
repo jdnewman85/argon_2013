@@ -18,10 +18,11 @@ func main() {
 	}
 	defer myGraphics.Destroy()
 
+	renderers.InitPrimitiveRenderers()
+
 	//Circles
-	circleRenderer := renderers.NewCircleRenderer()
 	myCircles := make([]argon.Circle, 5)
-	myGraphics.RegisterRenderer(myCircles, circleRenderer)
+	myGraphics.RegisterRenderer(myCircles, renderers.CircleRenderer)
 
 	myCircles[0].X = 200.0
 	myCircles[0].Y = 200.0
@@ -54,9 +55,8 @@ func main() {
 	myCircles[4] = argon.DefaultCircle
 
 	//Lines
-	lineRenderer := renderers.NewLineRenderer()
 	myLines := make([]argon.Line, 5)
-	myGraphics.RegisterRenderer(myLines, lineRenderer)
+	myGraphics.RegisterRenderer(myLines, renderers.LineRenderer)
 
 	myLines[0].X1 = 200.0
 	myLines[0].Y1 = 200.0
