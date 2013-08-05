@@ -21,7 +21,7 @@ type Renderer struct {
 	vao    Vao
 	vbo VertexBuffer
 	attributes    []Attribute
-	defaultProgram Program
+	program Program
 }
 
 //------------------------------------------------------------------------------------------The majority of this is VAO/Attribute setup, which should be seperated, switched to new system
@@ -43,19 +43,19 @@ func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, v
 	temp.vao.SetAttributes(renderAttributes)
 
 	//Shader Program
-	temp.defaultProgram, _ = CreateProgramFromFiles(defaultShaderPaths)
+	temp.program, _ = CreateProgramFromFiles(defaultShaderPaths)
 	//TODO ERROR on err here!
 
-	temp.defaultProgram.Use()
+	temp.program.Use()
 	//-Uniforms //TODO Remove/Move/Change
 	glUniformName := gl.GLString("inOrtho")
 	defer gl.GLStringFree(glUniformName)
-	inOrthoLoc := gl.GetUniformLocation(gl.Uint(temp.defaultProgram), glUniformName)
+	inOrthoLoc := gl.GetUniformLocation(gl.Uint(temp.program), glUniformName)
 	orthoMat := MakeOrtho(Width, Height)
 	gl.UniformMatrix4fv(inOrthoLoc, 1, 0, &orthoMat[0])
 
 	//--Textures //TODO Remove/Move/Change
-	texLoc := gl.GetUniformLocation(gl.Uint(temp.defaultProgram), gl.GLString("inTexture"))
+	texLoc := gl.GetUniformLocation(gl.Uint(temp.program), gl.GLString("inTexture"))
 	gl.Uniform1i(texLoc, 0)
 
 	//TODO Error Handling/Reporting
@@ -78,25 +78,6 @@ func (this *Renderer) Render(elements RenderData, program Program) {
 
 	//Draw
 	gl.DrawArrays(gl.POINTS, 0, elements.ElementNum)
-}
-
-//TEMP?
-func (this *Renderer) RenderBuffer(buffer Buffer) {
-	//Shader
-	this.defaultProgram.Use()
-	defer this.defaultProgram.Forgo()
-	tempVAO := GenVao()
-
-	//Bind vao
-	tempVAO.Bind()
-	defer tempVAO.UnBind()
-
-	//Attributes
-	tempVAO.SetAttributes(this.attributes)
-
-	//Draw
-	gl.DrawArrays(gl.POINTS, 0, 512*512)
-
 }
 
 func (this *Renderer) Draw(entity interface{}) {
@@ -131,12 +112,12 @@ func (this *Renderer) Draw(entity interface{}) {
 		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
 	}
 	renderData := RenderData{gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities)}
-	this.Render(renderData, this.defaultProgram)
+	this.Render(renderData, this.program)
 }
 
 //TEMP?
-func (this *Renderer) DefaultProgram() Program {
-	return this.defaultProgram
+func (this *Renderer) Program() Program {
+	return this.program
 }
 func (this *Renderer) Vao() gl.Uint {
 	return gl.Uint(this.vao)
