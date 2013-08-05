@@ -98,7 +98,19 @@ func (this *Renderer) Draw(entity interface{}) {
 		//TODO Better error stuffs
 		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
 	}
-	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities))
+	//	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities))
+
+	//Use/Bind
+	this.program.Use()
+	defer this.program.Forgo()
+	this.vao.Bind()
+	defer this.vao.UnBind()
+
+	//Update Buffer
+	this.vbo.Data(ArrayBuffer, gl.Sizeiptr(entitySize), gl.Pointer(entityPointer), gl.DYNAMIC_DRAW)
+
+	//Draw
+	gl.DrawArrays(gl.POINTS, 0, gl.Sizei(numEntities))
 }
 
 //TEMP?
