@@ -22,7 +22,6 @@ const FragmentShader = gl.FRAGMENT_SHADER
 type Shader gl.Uint
 type Program gl.Uint
 
-
 func CreateShader(shaderType gl.Enum) Shader {
 	return Shader(gl.CreateShader(shaderType))
 }
@@ -105,7 +104,6 @@ func CreateProgramFromFiles(fileNames []string) (Program, error) {
 	return program, nil
 }
 
-
 func (this Shader) ShaderInfoLog() (rString string) {
 	var infoLogLength gl.Int
 	var charsWritten gl.Sizei
@@ -124,4 +122,3 @@ func (this Shader) ShaderInfoLog() (rString string) {
 	//TODO Temp
 	return "No Log"
 }
-

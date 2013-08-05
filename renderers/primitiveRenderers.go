@@ -15,7 +15,7 @@ func init() {
 
 var (
 	CircleRenderer *argon.Renderer
-	LineRenderer *argon.Renderer
+	LineRenderer   *argon.Renderer
 )
 
 func InitPrimitiveRenderers() {
@@ -57,4 +57,3 @@ func LineRenderAttributes() []argon.Attribute {
 
 	return tempAttributes
 }
-

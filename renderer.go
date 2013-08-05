@@ -12,8 +12,8 @@ func init() {
 }
 
 type Renderer struct {
-	vao    Vao
-	vbo VertexBuffer
+	vao     Vao
+	vbo     VertexBuffer
 	program Program
 }
 
@@ -54,12 +54,9 @@ func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, v
 }
 
 //----------------------------------------------------------------------------------This should take a buffer, and managing that buffer should be seperate?
-func (this *Renderer) Render(data gl.Pointer, size gl.Sizeiptr, num gl.Sizei, program Program) {
-
-	//TODO Avoid unnessessary rebinds
-	//Binds
-	program.Use()
-	defer program.Forgo()
+func (this *Renderer) Render(data gl.Pointer, size gl.Sizeiptr, num gl.Sizei) {
+	this.program.Use()
+	defer this.program.Forgo()
 	this.vao.Bind()
 	defer this.vao.UnBind()
 
@@ -101,7 +98,7 @@ func (this *Renderer) Draw(entity interface{}) {
 		//TODO Better error stuffs
 		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
 	}
-	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities), this.program)
+	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities))
 }
 
 //TEMP?
