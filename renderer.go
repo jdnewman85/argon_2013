@@ -31,7 +31,7 @@ func CreateBasicRenderer(renderAttributes []Attribute, defaultShaderPaths []stri
 	//-Bind
 	temp.Vao.Bind()
 	defer temp.Vao.UnBind()
-	temp.Vbo.Bind()
+	temp.Vbo.BindVertexBuffer()
 
 	//-Attributes
 	temp.Vao.SetAttributes(renderAttributes)
@@ -96,8 +96,8 @@ func (this *BasicRenderer) Draw(entity interface{}) {
 	//	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities))
 
 	//Update Buffer
-	this.Vbo.Bind()
-	defer this.Vbo.UnBind()
+	this.Vbo.Bind(ArrayBuffer)
+	defer this.Vbo.UnBind(ArrayBuffer)
 	this.Vbo.Data(ArrayBuffer, gl.Sizeiptr(entitySize), gl.Pointer(entityPointer), gl.DYNAMIC_DRAW)
 
 	//Draw

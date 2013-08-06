@@ -32,7 +32,7 @@ type VertexBuffer struct {
 //func (this VertexBuffer) Bind(index gl.Uint) {
 //	gl.BindVertexBuffer(index, gl.Uint(this.Buffer), this.Offset, this.Stride)
 //}//TODO Other Buffer bind indicies
-func (this VertexBuffer) Bind() {
+func (this VertexBuffer) BindVertexBuffer() {
 	gl.BindVertexBuffer(0, gl.Uint(this.Buffer), this.Offset, this.Stride)
 }
 
