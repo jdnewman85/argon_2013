@@ -14,18 +14,18 @@ func init() {
 }
 
 var (
-	CircleRenderer *argon.Renderer
-	LineRenderer   *argon.Renderer
+	CircleRenderer *argon.BasicRenderer
+	LineRenderer   *argon.BasicRenderer
 )
 
 func InitPrimitiveRenderers() {
 	circleSources := []string{"./shaders/circle.vert", "./shaders/circle.geom", "./shaders/circle.frag"}
 	sizeOfCircle := gl.Sizei(unsafe.Sizeof(argon.DefaultCircle))
-	CircleRenderer = argon.CreateRenderer(CircleRenderAttributes(), circleSources, 0, sizeOfCircle)
+	CircleRenderer = argon.CreateBasicRenderer(CircleRenderAttributes(), circleSources, 0, sizeOfCircle)
 
 	lineSources := []string{"./shaders/line.vert", "./shaders/line.geom", "./shaders/line.frag"}
 	sizeOfLine := gl.Sizei(unsafe.Sizeof(argon.DefaultLine))
-	LineRenderer = argon.CreateRenderer(LineRenderAttributes(), lineSources, 0, sizeOfLine)
+	LineRenderer = argon.CreateBasicRenderer(LineRenderAttributes(), lineSources, 0, sizeOfLine)
 }
 
 func CircleRenderAttributes() []argon.Attribute {

@@ -39,3 +39,5 @@ Classes should not know about files/networking/etc... they see streams, and poss
 GLaM or azul3d for 3d math lib?
 
 Error checking on all gl functions needs to be evaluated
+
+Need to switch errors to returns, with error object, no printing

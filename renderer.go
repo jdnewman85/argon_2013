@@ -11,14 +11,18 @@ func init() {
 	log.Println("renderer.go here")
 }
 
-type Renderer struct {
+type BasicRenderer struct {
 	Vao
 	Vbo     VertexBuffer
 	Program
 }
 
-func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, vbOffset gl.Intptr, vbStride gl.Sizei) *Renderer {
-	temp := new(Renderer)
+type Renderer interface {
+	Draw(interface{})
+}
+
+func CreateBasicRenderer(renderAttributes []Attribute, defaultShaderPaths []string, vbOffset gl.Intptr, vbStride gl.Sizei) *BasicRenderer {
+	temp := new(BasicRenderer)
 
 	//Setup VAO and VBO
 	temp.Vao = GenVao()
@@ -53,21 +57,7 @@ func CreateRenderer(renderAttributes []Attribute, defaultShaderPaths []string, v
 	return temp
 }
 
-//----------------------------------------------------------------------------------This should take a buffer, and managing that buffer should be seperate?
-func (this *Renderer) Render(data gl.Pointer, size gl.Sizeiptr, num gl.Sizei) {
-	this.Program.Use()
-	defer this.Program.Forgo()
-	this.Vao.Bind()
-	defer this.Vao.UnBind()
-
-	//Update Buffer
-	this.Vbo.Data(ArrayBuffer, size, data, gl.DYNAMIC_DRAW)
-
-	//Draw
-	gl.DrawArrays(gl.POINTS, 0, num)
-}
-
-func (this *Renderer) Draw(entity interface{}) {
+func (this *BasicRenderer) Draw(entity interface{}) {
 	//TODO: Cleanup this a bit
 	var numEntities int = 1
 	var entitySize uintptr = 0
@@ -109,16 +99,7 @@ func (this *Renderer) Draw(entity interface{}) {
 	this.Vbo.Data(ArrayBuffer, gl.Sizeiptr(entitySize), gl.Pointer(entityPointer), gl.DYNAMIC_DRAW)
 
 	//Draw
-	Draw(this.Vao, this.Program, gl.Sizei(numEntities))
-}
-
-func Draw(vao Vao, program Program, num gl.Sizei) {
-	program.Use()
-	defer program.Forgo()
-	vao.Bind()
-	defer vao.UnBind()
-
-	gl.DrawArrays(gl.POINTS, 0, num)
+	this.Vao.Draw(gl.Sizei(numEntities), this.Program)
 }
 
 //TODO Assert on dataSizes and such not matching multiples of stored correct value?

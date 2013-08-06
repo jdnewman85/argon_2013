@@ -16,7 +16,7 @@ import (
 type Graphics struct {
 	width, height int
 	window        *glfw.Window
-	drawMap       map[reflect.Type]*Renderer
+	drawMap       map[reflect.Type]Renderer
 }
 
 var (
@@ -37,7 +37,7 @@ func (this *Graphics) Draw(element interface{}) {
 	renderer.Draw(element)
 }
 
-func (this *Graphics) RegisterRenderer(element interface{}, renderer *Renderer) {
+func (this *Graphics) RegisterRenderer(element interface{}, renderer Renderer) {
 	this.drawMap[reflect.TypeOf(element)] = renderer
 }
 
@@ -99,7 +99,7 @@ func NewGraphics(width, height int, fullscreen bool) (*Graphics, error) {
 	graphics := new(Graphics)
 	graphics.width, graphics.height = width, height
 	graphics.window = window
-	graphics.drawMap = make(map[reflect.Type]*Renderer)
+	graphics.drawMap = make(map[reflect.Type]Renderer)
 
 	return graphics, nil
 }

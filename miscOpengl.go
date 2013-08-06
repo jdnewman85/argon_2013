@@ -84,3 +84,13 @@ func (this Vao) SetAttributes(attributes []Attribute) {
 		gl.EnableVertexAttribArray(t.Index)
 	}
 }
+
+func (this Vao) Draw(num gl.Sizei, program Program) {
+	program.Use()
+	defer program.Forgo()
+	this.Bind()
+	defer this.UnBind()
+
+	gl.DrawArrays(gl.POINTS, 0, num)
+}
+
