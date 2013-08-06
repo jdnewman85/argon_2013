@@ -5,3 +5,18 @@ Potential handled cases for default renderer interface
 	Slice of Struct
 	Array of Pointers to Struct
 	Array of Struct
+
+
+
+
+
+
+
+What about method chaining to help with VAO/opengl?
+Possibly returning different types for added safety
+	Bindable Interface
+		Methods requiring a bind could call it
+	OR Bound Interface
+		Bind returns a Bound object, which the other methods can be called on
+		This would almost require casting to match current bound state?
+			Note: Doesn't sync previous instances of this 'Bindable' to know they are bound
