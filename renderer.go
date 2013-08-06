@@ -96,6 +96,8 @@ func (this *BasicRenderer) Draw(entity interface{}) {
 	//	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities))
 
 	//Update Buffer
+	this.Vbo.Bind()
+	defer this.Vbo.UnBind()
 	this.Vbo.Data(ArrayBuffer, gl.Sizeiptr(entitySize), gl.Pointer(entityPointer), gl.DYNAMIC_DRAW)
 
 	//Draw

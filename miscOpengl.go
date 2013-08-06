@@ -70,9 +70,6 @@ func (this Buffer) UnBind(target gl.Enum) {
 //}
 
 func (this Buffer) Data(target gl.Enum, size gl.Sizeiptr, data gl.Pointer, usage gl.Enum) {
-	this.Bind(target)
-	defer this.UnBind(target)
-
 	gl.BufferData(target, size, data, usage)
 }
 
