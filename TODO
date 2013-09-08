@@ -1,5 +1,3 @@
-
-
 V0.1 - Everything is sort of working, but I think I want to refactor more... this will be a good reference point for later.
 
 
@@ -44,53 +42,3 @@ Need to switch errors to returns, with error object, no printing
 
 May move some methods to VAOs, since they mainly change VAO state, and require VAO to be bound
 
-
-OK, I want to make it somewhat multithreaded
-	First, a light opengl wrapper for normal use
-	Second, a 'renderer' library ontop of that, with higher level functions
-		Primitives, sprites, loading images, etc
-	Third, a multithreading assist library
-		Provides graphics functions that can be queued
-		Possibly a render pipeline system
-			Executes render queues in defined order, with priorities?
-				Might be best to leave this to the user? See (Note 1)
-
-Note 1) Queues need to be draw in a specified order, but created/filled parallel
-		Sometimes queues may depend on the results of others, this requires parallel till needing the mutex, then blocking
-		This can all be done with channels I think
-			The pipeline can keep track of it's own 'stage'
-			All registered stages are launched at once
-			When a stage is registered, return the stage number?
-				This is for creating dependancies
-			When a 'stage' completes
-				It is drawn
-				The stage counter is incremented
-					And possibly it's Cond broadcasted
-			If a stage has a dependancy, it must block until it's dependancy is ready
-				Stages could be a map of Conds that a stage can wait on that index Cond
-			Possibly allow other named indexes to be created/used within the pipleine stage map?
-				This would be usefull for multiple syncs from multiple stages
-			PROBLEM
-				How do I ensure that the dependant stage didn't broadcast before the others were waiting?
-				Posibly just use simple locks?
-	Just a map of mutexes
-		Numbered indexes are unlocked by the pipeline as stages progress
-		Custom indexes are handled by the user
-
-Pipeline interface:
-	addStage() StageNum
-	startExecuting()?
-		startAllStages
-			Including an automatic stage as last one that flips and clses?
-		Setup Waitgroup PROBLEM, need to unlock stages?
-			Make stages do the unlocks?
-			Possibly wrap the function call in a goroutine that unlocks the mutex
-				Would it be more effiecient to start routines every frame, or have these wait for new frame?
-				Could even have the wrapping goroutine do the queue draw flushing
-	Would be nice if physics and cpu stuff is all queued in this too
-		Especially if some of these can be run more than once per frame
-		Networking, timed events, etc...
-
-SO!
-	Add in pipeline
-	Modify argon to have drawqueues and to be thread safe-ish
