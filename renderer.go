@@ -93,7 +93,6 @@ func (this *BasicRenderer) Draw(entity interface{}) {
 		//TODO Better error stuffs
 		log.Println("Renderer: Unhandled type: %s", interfaceType.String())
 	}
-	//	this.Render(gl.Pointer(entityPointer), gl.Sizeiptr(entitySize), gl.Sizei(numEntities))
 
 	//Update Buffer
 	this.Vbo.Bind(ArrayBuffer)
@@ -102,6 +101,18 @@ func (this *BasicRenderer) Draw(entity interface{}) {
 
 	//Draw
 	this.Vao.Draw(gl.Sizei(numEntities), this.Program)
+}
+
+func (this *BasicRenderer) DrawBuffer(buffer gl.Uint, numEntities gl.Sizei) {
+	//Bind Buffer
+	this.Vbo.Bind(ArrayBuffer)
+	defer this.Vbo.UnBind(ArrayBuffer)
+
+	//TODO CONTINUE
+	//I believe this isn't working because the Vao isn't setup with this buffer, need to address
+
+	//Draw
+	this.Vao.Draw(numEntities, this.Program)
 }
 
 //TODO Assert on dataSizes and such not matching multiples of stored correct value?
